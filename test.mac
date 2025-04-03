@@ -1,0 +1,51 @@
+# =====================================
+# User-editable parameters
+# =====================================
+# Path to directory containing G4EPP executable
+/control/alias G4EPP_BUILD_DIR /Users/luna/Documents/Work/Research/geant4/G4EPP-build # Do not include a slash at the end
+
+# Beam parameters
+/control/alias BEAM_ENERGY_KEV 10
+/control/alias BEAM_PITCH_ANGLE 85      # Loss cone at 1000 km: 49.4 deg (Earth), 300 km: 61.45 deg (Earth)
+/control/alias NUMBER_OF_PARTICLES 10
+
+# =====================================
+# End parameters
+# =====================================
+
+
+# =====================================
+# DO NOT EDIT BELOW THIS POINT!
+# =====================================
+/dataCollection/setAtmosFileName MSISE00_atmosphere.csv 
+
+/run/initialize
+
+/control/verbose 0
+/process/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+/field/setStepperType 10 # 10 - RungeKutta w/ PrinceDormand method, 7-8
+
+# 0 - electrons
+# 1 - solar X-ray spectrum
+# 2 - CXB (Cosmic X-ray Background)
+/energy/setSourceType 0
+
+# Bremsstrahlung splitting
+/process/em/setSecBiasing eBrem world 100 100 MeV
+
+# Set result filepaths
+/dataCollection/setHistFileName spectra{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg.csv
+/dataCollection/setBackscatterFilename {G4EPP_BUILD_DIR}/results/electron_backscatter_{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg_{NUMBER_OF_PARTICLES}particles.csv
+
+# Set beam parameters
+/energy/setFoldingEnergy {BEAM_ENERGY_KEV} # [keV]
+/energy/setMaximumPitchAngle {BEAM_PITCH_ANGLE}  # [deg]
+/energy/particleStartingAltitude 450.0  # [km A1B]
+
+# Execute run
+/control/echo Executing Run: {BEAM_ENERGY_KEV} keV, {BEAM_PITCH_ANGLE}º...
+/run/beamOn {NUMBER_OF_PARTICLES}

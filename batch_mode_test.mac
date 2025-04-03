@@ -1,0 +1,10 @@
+/run/initialize
+
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+/control/alias BEAM_PITCH_ANGLE 85
+
+/control/foreach run_single_beam.mac BEAM_ENERGY_KEV 10 14 21 30 43 62 89 127 183 264 379 546 785 1129 1624 2336 3360 4833 6952 10000

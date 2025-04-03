@@ -1,0 +1,14 @@
+MINIMUM_BEAM_ENERGY_KEV = 10
+MAXIMUM_BEAM_ENERGY_KEV = 10_000
+NUMBER_OF_ENERGIES_TO_SIMULATE = 20
+
+MINIMUM_BEAM_PITCH_ANGLE_DEG = 70
+MAXIMUM_BEAM_PITCH_ANGLE_DEG = 90
+NUMBER_OF_PITCH_ANGLES_TO_SIMULATE = 5
+
+energies_to_simulate = 10.0.^LinRange(log10(MINIMUM_BEAM_ENERGY_KEV), log10(MAXIMUM_BEAM_ENERGY_KEV), NUMBER_OF_ENERGIES_TO_SIMULATE)
+energies_to_simulate = Int.(round.(energies_to_simulate))
+
+pitch_angles_to_simulate = LinRange(MINIMUM_BEAM_PITCH_ANGLE_DEG, MAXIMUM_BEAM_PITCH_ANGLE_DEG, NUMBER_OF_PITCH_ANGLES_TO_SIMULATE)
+
+[run(`$(@__DIR__)/G4EPP $E $α`) for E in energies_to_simulate, α in pitch_angles_to_simulate]
