@@ -53,9 +53,8 @@
 RunAction::RunAction()
 : G4UserRunAction(),
   fRunActionMessenger(),
-  fHistogramFileName()
+  fHistogramFileName(),
 {
-
   fWarningEnergy   =   0.1 * keV;  // Arbitrary 
   fImportantEnergy =   1.0 * keV;  // Particles above this energy cannot be killed (?) Arbitrary 
   fNumberOfTrials  =   100;  // Number of trials before a looping particle is killed. Arbitrary
@@ -68,7 +67,6 @@ RunAction::RunAction()
   fEnergyHist_2               = new myHistogram(); // 1000 km in 1 km bins
   fEnergyHist2D_2             = new myHistogram(std::log10(0.250), std::log10(1000), 101); 
   							// [250 eV, 1 MeV] in 100 bins
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

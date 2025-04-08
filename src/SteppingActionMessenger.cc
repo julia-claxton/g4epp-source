@@ -23,7 +23,7 @@ SteppingActionMessenger::SteppingActionMessenger(SteppingAction* step)
 
   fcmd2 = new G4UIcmdWithAString("/dataCollection/setBackscatterFilename", this);
   fcmd2->SetParameterName("Enter file name.", true);
-  fcmd2->SetDefaultValue("electron_backscatter.csv");
+  fcmd2->SetDefaultValue("backscatter.csv");
 
   fDcmd = new G4UIcmdWithADouble("/dataCollection/setPhotonWindowAltitude", this);
   fDcmd->SetParameterName("Enter altitude in km", true);

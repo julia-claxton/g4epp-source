@@ -200,10 +200,12 @@ int main(int argc,char** argv)
   // delete visManager;
   delete runManager;
 
+  /*
   // Move output files to results directory. Can't get dataCollection to do this automatically so we resort to system commands.
   std::cout << "Moving output files to ./results..." << std::endl;
   system("mv -f $(find . -name \"electron_*\") ./results");
   system("mv -f $(find . -name \"photon_*\") ./results");
+  */
 
   // End simulation timer
   auto t_end = std::chrono::high_resolution_clock::now();

@@ -35,7 +35,7 @@
 
 # Set result filepaths
 /dataCollection/setHistFileName spectra{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg.csv
-/dataCollection/setBackscatterFilename {G4EPP_BUILD_DIR}/results/electron_backscatter_{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg_{NUMBER_OF_PARTICLES}particles.csv
+/dataCollection/setBackscatterFilename {G4EPP_BUILD_DIR}/results/backscatter_{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg_{NUMBER_OF_PARTICLES}electrons.csv
 
 # Set beam parameters
 /energy/setFoldingEnergy {BEAM_ENERGY_KEV} # [keV]

@@ -50,7 +50,7 @@ SteppingAction::SteppingAction(EventAction* eventAction, RunAction* RuAct)
   fEventAction(eventAction),
   fRunAction(RuAct),
   fEnergyThreshold_keV(0.),
-  fWindowAlt(500.),
+  //fWindowAlt(500.),
   fDataCollectionType(0),
   fBackscatterFilename(),
   fSteppingMessenger()
@@ -97,35 +97,34 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // ===========================
   // Backscatter Tracking
   // ===========================
-  G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
-  if(particleName == "e-")
+  const G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
+  const G4ThreeVector momentum = track->GetMomentumDirection();
+  const G4ThreeVector position = track->GetPosition();
+  const G4double energy =  step->GetPreStepPoint()->GetKineticEnergy();
+        
+  if( (position.z()/km > 450.0-500.0) && (momentum.z() > 0) ) // If particle is above 450 km and moving upwards. Subtract 500 because 0.0 in world coordinates = +500 km above sea level
   {
-    const G4ThreeVector momentum = track->GetMomentumDirection();
-    const G4ThreeVector position = track->GetPosition();
-    const G4double energy =  step->GetPreStepPoint()->GetKineticEnergy();
-          
-    if( (position.z()/km > -50.0) && (momentum.z() > 0) ) // If particle is above 450 km and moving upwards. 0.0 = +500 km ASL
-    {
-      // Lock scope to stop threads from overwriting data in same file
-      G4AutoLock lock(&aMutex);
+    // Lock scope to stop threads from overwriting data in same file
+    G4AutoLock lock(&aMutex);
 
-      // Write position and momentum to file
-      std::ofstream dataFile;
-      dataFile.open(fBackscatterFilename, std::ios_base::app);
-      dataFile 
-        << position.x()/m << ',' 
-        << position.y()/m << ','
-        << (position.z()/m) + 500000 << ',' // Shift so we are writing altitude above sea level to file rather than the world coordinates
-        << momentum.x() * energy/keV << ','
-        << momentum.y() * energy/keV << ','
-        << momentum.z() * energy/keV << '\n'; 
-      dataFile.close();
+    // Write position and momentum to file
+    std::ofstream dataFile;
+    dataFile.open(fBackscatterFilename, std::ios_base::app); // Open file in append mode
+    dataFile 
+      << particleName << ','
+      << position.x()/m << ',' 
+      << position.y()/m << ','
+      << (position.z()/m) + 500000 << ',' // Shift so we are writing altitude above sea level to file rather than the world coordinates
+      << momentum.x() * energy/keV << ','
+      << momentum.y() * energy/keV << ','
+      << momentum.z() * energy/keV << '\n'; 
+    dataFile.close();
 
-      // Kill particle after data collection
-      track->SetTrackStatus(fStopAndKill);
-      G4cout << "Recorded and killed upgoing electron at 450 km." << G4endl; // Status message
-    }
+    // Kill particle after data collection
+    track->SetTrackStatus(fStopAndKill);
+    G4cout << "Recorded and killed upgoing " << particleName << " at 450 km." << G4endl; // Status message
   }
+
 
 
   /*
