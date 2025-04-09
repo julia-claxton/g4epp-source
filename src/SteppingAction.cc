@@ -56,7 +56,6 @@ SteppingAction::SteppingAction(EventAction* eventAction, RunAction* RuAct)
   fSteppingMessenger()
 {
   fSteppingMessenger = new SteppingActionMessenger(this);
-  G4cout << "Recording backscatter and TODO ionization." << G4endl;
 }
 
 SteppingAction::~SteppingAction(){delete fSteppingMessenger;}

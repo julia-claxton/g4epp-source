@@ -44,12 +44,7 @@ target_link_libraries(G4EPP ${Geant4_LIBRARIES})
 # relies on these scripts being in the current working directory.
 #
 set(G4EPP_FILES
-  initialize_visualization.mac
-  visualization.mac
   run_single_beam.mac
-  test.mac
-  batch_mode_test.mac
-  run_all.jl
   MSISE00_atmosphere.csv
   )
 
@@ -69,8 +64,7 @@ add_custom_command(
 )
 
 #----------------------------------------------------------------------------
-# For internal Geant4 use - but has no effect if you build this
-# example standalone
+# For internal Geant4 use - but has no effect if you build this example standalone
 #
 add_custom_target(B1 DEPENDS main)
 

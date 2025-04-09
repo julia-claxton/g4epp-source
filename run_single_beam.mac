@@ -1,4 +1,4 @@
-/control/alias NUMBER_OF_PARTICLES 100000 # 1e5
+/control/alias NUMBER_OF_PARTICLES 100
 /control/alias G4EPP_BUILD_DIR /Users/luna/Documents/Work/Research/geant4/G4EPP-build # Do not include a slash at the end
 
 /control/echo Executing Run: {BEAM_ENERGY_KEV} keV, {BEAM_PITCH_ANGLE}º...
@@ -15,12 +15,15 @@
 # Set file name for atmosphere table
 /dataCollection/setAtmosFileName MSISE00_atmosphere.csv 
 
-/run/initialize
-
 /control/verbose 0
 /run/verbose 0
 /event/verbose 0
 /tracking/verbose 0
+/run/particle/verbose 0
+/geometry/navigator/verbose 0
+/process/had/verbose 0
+
+/run/initialize
 
 /field/setStepperType 10 # 10 - RungeKutta w/ PrinceDormand method, 7-8
 

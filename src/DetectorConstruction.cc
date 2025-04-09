@@ -83,7 +83,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
               kStateGas, 2.73*kelvin, 3.0E-12*pascal );
 
   // Option to switch on/off checking of volumes overlaps
-  G4bool checkOverlaps = true;
+  G4bool checkOverlaps = false; // Set to true if you need to debug. Set false as there are no issues right now and it's very verbose.
 
   // World
   G4double world_sizeXY = 1000.0*km;

@@ -80,42 +80,31 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GenerateElectrons(ParticleSample* r)
 {
+  // Generates particles to propagate in simulation.
 
-  G4String word;
-  std::ifstream inputFile; 
-
-  // Initial position RV's
+  // Initial position random variables
+  // Starts the particle position on a random uniform sampling of a circular area
   G4double theta = G4UniformRand() * 2. * 3.1415926; // u ~ Unif[0, 2 pi)
   G4double radialPosition = G4UniformRand();  // [0, 1)
   G4double diskRadius = 400.*km;
 
-  // Random uniform sampling on a circular area
   r->xPos = diskRadius * std::sqrt(radialPosition) * std::cos(theta);
   r->yPos = diskRadius * std::sqrt(radialPosition) * std::sin(theta);
-  
-  // Subtraction due to coordinate axis location in middle of volume
-  std::cout << "Initial altitude: " << fInitialParticleAlt << " km" << std::endl;
-  r->zPos = (fInitialParticleAlt - 500)*km;
+  r->zPos = (fInitialParticleAlt - 500)*km; // Subtraction due to coordinate axis location in middle of world volume
 
-  // Particle attribute random variables
-  // Starts electrons with gyromotion about field line
+  // Particle velocity random variables. Starts electrons with gyromotion about field line
   G4double maxPitchAngle = fMaxPitchAngle * 3.1415926 / 180.;   // rad
-  
-  // Angular RV's
   G4double gyroPhase  = G4UniformRand() * 2. * 3.1415926;
   G4double pitchAngle = maxPitchAngle;
-
-  // NB: need to rotate into inclined B-field frame
-  // Poker Flats: 65.77 geomagnetic latitude --> 77.318 deg magnetic tilt angle
-  // => we want to tilt our coordinate system 12.682 deg in the z-y plane
-  G4double tilt_angle = 12.682 * fPI / 180.; // rad
 
   // Initial momentum direction of particles
   r->xDir = std::sin(pitchAngle)*std::cos(gyroPhase);
   r->yDir = std::sin(pitchAngle)*std::sin(gyroPhase);
   r->zDir = -std::cos(pitchAngle);
 
-  // Rotate
+  // Need to rotate into inclined B-field frame since B-field is inclined from the world z axis.
+  // Poker Flats: 65.77 geomagnetic latitude --> 77.318 deg magnetic tilt angle => we want to tilt our coordinate system 12.682 deg in the z-y plane
+  G4double tilt_angle = 12.682 * fPI / 180.; // rad
   r->yDir = std::cos(tilt_angle) * r->yDir - std::sin(tilt_angle) * r->zDir;
   r->zDir = std::sin(tilt_angle) * r->yDir + std::cos(tilt_angle) * r->zDir;
 

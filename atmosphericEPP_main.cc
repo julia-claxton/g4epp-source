@@ -75,7 +75,7 @@ to run:
 #include "G4Transportation.hh"
 #include "G4CoupledTransportation.hh"
 
-// For moving results to subdirectory (because I can't get dataCollection to do it itself
+// For moving results to subdirectory (because I can't get dataCollection to do it itself) TODO
 #include <filesystem>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -84,12 +84,6 @@ int main(int argc,char** argv)
 {
   // Start simulation timer
   auto t_start = std::chrono::high_resolution_clock::now();
-
-  // Detect interactive mode (if no arguments) and define UI session
-  G4UIExecutive* ui = 0;
-  if ( argc == 1 ) {
-    ui = new G4UIExecutive(argc, argv);
-  }
 
   // Choose the Random engine
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
@@ -131,77 +125,47 @@ int main(int argc,char** argv)
   G4double highLimit = 100. * GeV;
   G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(lowLimit, highLimit);
 
-
-  // Fine grained control of thresholds for looping particles
-  auto runAction= new RunAction();
-  runAction->SetWarningEnergy(   1.0 * keV );
-              // Looping particles with E < ^ keV will be killed after 1 step
-              //   with warning.
-              // Looping particles with E > ^ keV will generate a warning.
-  runAction->SetImportantEnergy( 0.1 * keV );
-  runAction->SetNumberOfTrials( 50 ); // Looping particles with E > 0.1 keV will survive for up to 30 'tracking' steps, and only be killed if they still loop.
-  // Note: this mechanism overwrites the thresholds established by the call to UseLowLooperThresholds() above.
-  
-  runManager->SetUserAction(runAction);
-
-
   // Suppress large verbosity from EM & hadronic processes
   G4EmParameters::Instance()->SetVerbose(-1);
   G4HadronicProcessStore::Instance()->SetVerbose(0);
 
-
-  // Initialize visualization
-  /*
-  G4VisManager* visManager = new G4VisExecutive;
-  // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
-  visManager->Initialize();
-  */
-
   // Get the pointer to the User Interface manager
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
-  // Process macro or start UI session
-  //
-  if ( ! ui ) {
-    // Batch mode
-    G4String execute = "/control/execute ";
-    G4String command_to_run;
-
-    // If one argument is provided, interpret it as a macro to run
-    if(argc == 2){
-      command_to_run = argv[1];
-      std::cout << "Running in macro mode with " + command_to_run << std::endl;
-    }
-
-    // If 2 arguments are provided, interpret them as an energy and pitch angle to run
-    if(argc == 3){
-      G4String energy = argv[1];
-      G4String pitch_angle = argv[2];
-      UImanager->ApplyCommand("/control/alias BEAM_ENERGY_KEV " + energy);
-      UImanager->ApplyCommand("/control/alias BEAM_PITCH_ANGLE " + pitch_angle);
-
-      std::cout << "Running in single beam mode at " + energy + " keV, " + pitch_angle + " deg" << std::endl;
-      command_to_run = "run_single_beam.mac";
-    }
-
-    UImanager->ApplyCommand(execute + command_to_run);
+  // Decide command to execute based on command line input
+  G4String execute = "/control/execute ";
+  G4String command_to_run;
+  
+  // If one argument is provided, interpret it as a macro to run
+  if(argc == 2){
+    command_to_run = argv[1];
+    std::cout << "=====================================================================" << std::endl;
+    std::cout << "Running in macro mode with " + command_to_run << std::endl;
+    std::cout << "=====================================================================" << std::endl;
   }
-  else {
-    // interactive mode
-    UImanager->ApplyCommand("/control/execute initialize_visualization.mac");
-    ui->SessionStart();
-    delete ui;
+  // If 2 arguments are provided, interpret them as an energy and pitch angle to run
+  if(argc == 3){
+    G4String energy = argv[1];
+    G4String pitch_angle = argv[2];
+    UImanager->ApplyCommand("/control/alias BEAM_ENERGY_KEV " + energy);
+    UImanager->ApplyCommand("/control/alias BEAM_PITCH_ANGLE " + pitch_angle);
+
+    std::cout << "=====================================================================" << std::endl;
+    std::cout << "Running in single beam mode at " + energy + " keV, " + pitch_angle + " deg" << std::endl;
+    std::cout << "=====================================================================" << std::endl;
+    command_to_run = "run_single_beam.mac";
   }
+  // Execute run
+  UImanager->ApplyCommand(execute + command_to_run);
 
   // Job termination
   // Free the store: user actions, physics_list and detector_description are
   // owned and deleted by the run manager, so they should not be deleted
   // in the main() program !
-  // delete visManager;
   delete runManager;
 
   /*
-  // Move output files to results directory. Can't get dataCollection to do this automatically so we resort to system commands.
+  // Move output files to results directory. Can't get dataCollection to do this automatically so we resort to system commands. TODO
   std::cout << "Moving output files to ./results..." << std::endl;
   system("mv -f $(find . -name \"electron_*\") ./results");
   system("mv -f $(find . -name \"photon_*\") ./results");
@@ -210,7 +174,7 @@ int main(int argc,char** argv)
   // End simulation timer
   auto t_end = std::chrono::high_resolution_clock::now();
 
-  // Calculate elapsed simulation (wall) time
+  // Calculate elapsed simulation time (realtime, not simulation time)
   double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
   std::cout << "Simulation completed in : " << elapsed_time_ms/1000. << " seconds" << std::endl;
 

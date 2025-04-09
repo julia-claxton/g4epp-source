@@ -55,11 +55,11 @@ RunAction::RunAction()
   fRunActionMessenger(),
   fHistogramFileName()
 {
-  fWarningEnergy   =   0.1 * keV;  // Arbitrary 
-  fImportantEnergy =   1.0 * keV;  // Particles above this energy cannot be killed (?) Arbitrary 
-  fNumberOfTrials  =   100;  // Number of trials before a looping particle is killed. Arbitrary
+  fWarningEnergy = 0.01 * keV; // Particles below this energy are killed after 1 step. Arbitrary 
+  fImportantEnergy = 0.1 * keV; // Particles above this energy are killed after fNumberOfTrials if they are looping. Arbitrary 
+  fNumberOfTrials = 1000; // Number of trials before a looping 'important' particle is killed. Arbitrary
 
-  fRunActionMessenger     = new RunActionMessenger(this); 
+  fRunActionMessenger = new RunActionMessenger(this); 
 
   fEnergyHist_1               = new myHistogram(); // 1000 km in 1 km bins
   fEnergyHist2D_1             = new myHistogram(std::log10(0.250), std::log10(1000), 101); 
@@ -135,9 +135,7 @@ void RunAction::EndOfRunAction(const G4Run*)
 }
 
 
-std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransportation( 
-				  const G4ParticleDefinition* particleDef,
-                                  bool reportError )
+std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransportation(const G4ParticleDefinition* particleDef, bool reportError)
 {
   const auto *partPM=  particleDef->GetProcessManager();
     
@@ -156,8 +154,7 @@ std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransporta
             << G4endl;
   }
   
-  return
-     std::make_pair( transport, coupledTransport );
+  return std::make_pair( transport, coupledTransport );
 }
 
 
