@@ -94,6 +94,7 @@ void PrimaryGeneratorAction::GenerateElectrons(ParticleSample* r)
   r->yPos = diskRadius * std::sqrt(radialPosition) * std::sin(theta);
   
   // Subtraction due to coordinate axis location in middle of volume
+  std::cout << "Initial altitude: " << fInitialParticleAlt << " km" << std::endl;
   r->zPos = (fInitialParticleAlt - 500)*km;
 
   // Particle attribute random variables

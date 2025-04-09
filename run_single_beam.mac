@@ -1,8 +1,7 @@
-/control/alias NUMBER_OF_PARTICLES 10 # TODO 1e5
+/control/alias NUMBER_OF_PARTICLES 100000 # 1e5
 /control/alias G4EPP_BUILD_DIR /Users/luna/Documents/Work/Research/geant4/G4EPP-build # Do not include a slash at the end
 
 /control/echo Executing Run: {BEAM_ENERGY_KEV} keV, {BEAM_PITCH_ANGLE}º...
-
 
 # ??????
 # Set low energy EM processes, including fluorescence

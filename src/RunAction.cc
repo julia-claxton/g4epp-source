@@ -53,7 +53,7 @@
 RunAction::RunAction()
 : G4UserRunAction(),
   fRunActionMessenger(),
-  fHistogramFileName(),
+  fHistogramFileName()
 {
   fWarningEnergy   =   0.1 * keV;  // Arbitrary 
   fImportantEnergy =   1.0 * keV;  // Particles above this energy cannot be killed (?) Arbitrary 
