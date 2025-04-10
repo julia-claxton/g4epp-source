@@ -49,6 +49,7 @@ to run:
 // Multithreading header support
 #ifdef G4MULTITHREADED
   #include "G4MTRunManager.hh"
+  #include "G4Threading.hh"
 #else
   #include "G4RunManager.hh"
 #endif
@@ -78,7 +79,6 @@ to run:
 // For moving results to subdirectory (because I can't get dataCollection to do it itself) TODO
 #include <filesystem>
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int main(int argc,char** argv)
 {
@@ -112,7 +112,7 @@ int main(int argc,char** argv)
 
   // Physics list
   G4PhysListFactory factory;
-  G4VModularPhysicsList* physicsList = factory.GetReferencePhysList("QBBC");
+  G4VModularPhysicsList* physicsList = factory.GetReferencePhysList("QBBC"); // QBBC uses EM v1. Do we need more updated EM model? TODO
   
   //G4VModularPhysicsList* physicsList = new FTFP_BERT;
   physicsList->RegisterPhysics(new G4StepLimiterPhysics());
@@ -163,6 +163,9 @@ int main(int argc,char** argv)
   // owned and deleted by the run manager, so they should not be deleted
   // in the main() program !
   delete runManager;
+
+
+
 
   /*
   // Move output files to results directory. Can't get dataCollection to do this automatically so we resort to system commands. TODO

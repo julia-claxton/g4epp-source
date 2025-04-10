@@ -49,9 +49,7 @@ SteppingAction::SteppingAction(EventAction* eventAction, RunAction* RuAct)
 : G4UserSteppingAction(),
   fEventAction(eventAction),
   fRunAction(RuAct),
-  fEnergyThreshold_keV(0.),
-  //fWindowAlt(500.),
-  fDataCollectionType(0),
+  //fEnergyThreshold_keV(0.),
   fBackscatterFilename(),
   fSteppingMessenger()
 {
@@ -84,47 +82,60 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     G4cout << "Particle killed at: " << step->GetPreStepPoint()->GetKineticEnergy()/keV << " keV , Process: " << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << G4endl;
   }
 
-  // ===========================
-  // Ionization Tracking
-  // ===========================
+  // Get particle info for use in logging below
+  const G4String      particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
+  const G4ThreeVector position     = track->GetPosition();
+  const G4ThreeVector momentum     = track->GetMomentumDirection();
 
-  // TODO
+  // ===========================
+  // Energy Deposition Tracking
+  // ===========================
+  // Add energy deposition to vector owned by RunAction, which is written to a results file per simulation run  
+  G4double zPos = position.z(); // Particle altitude in world coordinates
+  G4int altitudeAddress = std::floor(500.0 + zPos/km); // Index to write to. Equal to altitude above sea level in km, to nearest whole km
+  
+  if(altitudeAddress > 0 && altitudeAddress < 1000) 
+  {
+    const G4double energyDeposition = step->GetPreStepPoint()->GetKineticEnergy() - step->GetPostStepPoint()->GetKineticEnergy();
+    LogEnergy(altitudeAddress, energyDeposition/keV); // Threadlocking occurs inside LogEnergy
+  }
 
-  // TODO headers on result files
+
+  // TODO headers on result file for backscatter
 
 
   // ===========================
   // Backscatter Tracking
-  // ===========================
-  const G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
-  const G4ThreeVector momentum = track->GetMomentumDirection();
-  const G4ThreeVector position = track->GetPosition();
-  const G4double energy =  step->GetPreStepPoint()->GetKineticEnergy();
-        
+  // ===========================        
   if( (position.z()/km > 450.0-500.0) && (momentum.z() > 0) ) // If particle is above 450 km and moving upwards. Subtract 500 because 0.0 in world coordinates = +500 km above sea level
   {
     // Lock scope to stop threads from overwriting data in same file
     G4AutoLock lock(&aMutex);
 
     // Write position and momentum to file
+    const G4double preStepEnergy =  step->GetPreStepPoint()->GetKineticEnergy();
+
     std::ofstream dataFile;
     dataFile.open(fBackscatterFilename, std::ios_base::app); // Open file in append mode
+    if (!dataFile.is_open()) {
+        std::cerr << "Failed to open file!" << std::endl;
+        throw;
+    }
+    
     dataFile 
       << particleName << ','
       << position.x()/m << ',' 
       << position.y()/m << ','
       << (position.z()/m) + 500000 << ',' // Shift so we are writing altitude above sea level to file rather than the world coordinates
-      << momentum.x() * energy/keV << ','
-      << momentum.y() * energy/keV << ','
-      << momentum.z() * energy/keV << '\n'; 
+      << momentum.x() * preStepEnergy/keV << ','
+      << momentum.y() * preStepEnergy/keV << ','
+      << momentum.z() * preStepEnergy/keV << '\n'; 
     dataFile.close();
 
     // Kill particle after data collection
     track->SetTrackStatus(fStopAndKill);
-    G4cout << "Recorded and killed upgoing " << particleName << " at 450 km." << G4endl; // Status message
+    G4cout << "Recorded and killed upgoing " << particleName << " at 450 km" << G4endl; // Status message
   }
-
-
 
   /*
   switch(fDataCollectionType)
@@ -220,26 +231,5 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 void SteppingAction::LogEnergy(G4int histogramAddress, G4double energy)
 {
   G4AutoLock lock(&aMutex);
-  fRunAction->fEnergyHist_1->AddCountToBin(histogramAddress, energy/keV);
+  fRunAction->fEnergyDepositionHistogram->AddCountToBin(histogramAddress, energy/keV);
 }
-
-void SteppingAction::LogEnergyToSpecificHistogram(G4int histogramAddress, G4double entry1, G4double entry2, G4int whichHistogram)
-{
-  G4AutoLock lock(&aMutex);
-  switch(whichHistogram)
-  {
-    case(1):
-      fRunAction->fEnergyHist_1->AddCountToBin(histogramAddress, entry1/keV);
-      fRunAction->fEnergyHist2D_1->AddCountTo2DHistogram(histogramAddress, entry2/keV);
-      break;
-    case(2):
-      fRunAction->fEnergyHist_2->AddCountToBin(histogramAddress, entry1/keV);
-      fRunAction->fEnergyHist2D_2->AddCountTo2DHistogram(histogramAddress, entry2/keV);
-      break;
-    default:
-      throw std::runtime_error("Enter a valid histogram selection!");
-      break;
-  }
-
-}
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

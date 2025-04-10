@@ -53,15 +53,10 @@ class SteppingAction : public G4UserSteppingAction
 
     virtual ~SteppingAction();
 
-    void SetDataCollection(G4int type){ fDataCollectionType = type; }; 
-    void SetBackscatterFilename(G4String name){ fBackscatterFilename = name; }; 
-
-    void SetPhotonWindowAlt(G4double alt){ fWindowAlt = alt; };
+    void SetBackscatterFilename(G4String name){fBackscatterFilename = name;}; 
 
     void LogEnergy(G4int, G4double);    
     
-    void LogEnergyToSpecificHistogram(G4int, G4double, G4double, G4int);
-
     // method from the base class
     virtual void UserSteppingAction(const G4Step*);
 
@@ -69,12 +64,9 @@ class SteppingAction : public G4UserSteppingAction
     EventAction*             fEventAction;
     RunAction*               fRunAction;
     G4double                 fEnergyThreshold_keV;
-    G4double                 fWindowAlt;
-    G4int                    fDataCollectionType;
     G4String                 fBackscatterFilename;
     SteppingActionMessenger* fSteppingMessenger;
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif

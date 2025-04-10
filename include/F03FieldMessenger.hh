@@ -30,8 +30,6 @@
 // $Id: F03FieldMessenger.hh 76602 2013-11-13 08:33:35Z gcosmo $
 //
 //
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #ifndef F03FieldMessenger_h
 #define F03FieldMessenger_h 1
@@ -44,7 +42,6 @@ class G4UIcmdWithAnInteger;
 class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWithoutParameter;
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class F03FieldMessenger: public G4UImessenger
 {

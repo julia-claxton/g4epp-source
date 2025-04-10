@@ -67,7 +67,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     void GenerateCXB(ParticleSample*);
     
     // Messenger methods
-    void SetEnergy(G4double E0){ fE0 = E0;};
+    void SetEnergy(G4double E0){ fInitialEnergy = E0;};
     void SetEnergyDistribution(G4int se){ fEnergyDistType = se; };
     void SetPitchAngleDistribution(G4int pad){fPitchAngleDistType = pad;};
     void SetMaxPitchAngle(G4double maxPA){ fMaxPitchAngle = maxPA; };
@@ -81,7 +81,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     PrimaryGeneratorMessenger* fPrimaryMessenger;
     G4int           fEnergyDistType;
     G4int 	    fPitchAngleDistType;
-    G4double        fE0;
+    G4double        fInitialEnergy;
     G4double        fMaxPitchAngle;
     G4double        fInitialParticleAlt;
     G4double	    fPI;
@@ -89,6 +89,5 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4int           fSourceType;
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif

@@ -25,6 +25,7 @@ private:
   RunAction*                 fRunAction;
   G4UIdirectory*             fPrimDir;
   G4UIcmdWithAString*        fcmd1;
+  G4UIcmdWithAString*        fcmd2;
 
 };
 

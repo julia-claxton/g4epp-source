@@ -47,7 +47,6 @@
 
 #include "DetectorMessenger.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::DetectorConstruction()
 : G4VUserDetectorConstruction(),
@@ -59,14 +58,12 @@ DetectorConstruction::DetectorConstruction()
   fDetectorMessenger = new DetectorMessenger(this);
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::~DetectorConstruction()
 {
   delete fDetectorMessenger;
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {
@@ -405,4 +402,3 @@ G4int DetectorConstruction::GetMSIStableSize(G4String filename)
   return counter;
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

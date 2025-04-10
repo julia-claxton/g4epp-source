@@ -49,89 +49,123 @@
 #include "RunActionMessenger.hh"
 
 #include <fstream>
+#include "../include/csv.h"
 
-RunAction::RunAction()
-: G4UserRunAction(),
+RunAction::RunAction():
+  G4UserRunAction(),
   fRunActionMessenger(),
-  fHistogramFileName()
+  fEnergyDepositionFileName(),
+  fBackscatterFilename()
 {
-  fWarningEnergy = 0.01 * keV; // Particles below this energy are killed after 1 step. Arbitrary 
-  fImportantEnergy = 0.1 * keV; // Particles above this energy are killed after fNumberOfTrials if they are looping. Arbitrary 
-  fNumberOfTrials = 1000; // Number of trials before a looping 'important' particle is killed. Arbitrary
+  fWarningEnergy = 0.01 * keV; // Particles below this energy are killed after 1 step. Value arbitrary 
+  fImportantEnergy = 0.1 * keV; // Particles above this energy are killed after fNumberOfTrials if they are looping. Value arbitrary 
+  fNumberOfTrials = 1000; // Number of trials before a looping 'important' particle is killed. Value arbitrary. Set very high to avoid losing particles
 
   fRunActionMessenger = new RunActionMessenger(this); 
 
-  fEnergyHist_1               = new myHistogram(); // 1000 km in 1 km bins
-  fEnergyHist2D_1             = new myHistogram(std::log10(0.250), std::log10(1000), 101); 
-  							// [250 eV, 1 MeV] in 100 bins
-  fEnergyHist_2               = new myHistogram(); // 1000 km in 1 km bins
-  fEnergyHist2D_2             = new myHistogram(std::log10(0.250), std::log10(1000), 101); 
-  							// [250 eV, 1 MeV] in 100 bins
+  // Initialize energy deposition histogram
+  fEnergyDepositionHistogram = new myHistogram(); // Defaults to 0-999 km in 1 km bins
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::~RunAction()
 {
-  delete fEnergyHist_1;
-  delete fEnergyHist2D_1;
-  delete fEnergyHist_2;
-  delete fEnergyHist2D_2;
+  delete fEnergyDepositionHistogram;
   delete fRunActionMessenger;
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 void RunAction::BeginOfRunAction(const G4Run*)
 {
+  int threadID = G4Threading::G4GetThreadId();
+
+  // If we are the main thread, create backscatter file and write header
+  if(threadID == -1)
+  {
+    // after adding this block, writes in steppingaction stopped working. fix!!
+    std::ofstream dataFile;
+    dataFile.open(fBackscatterFilename, std::ios_base::app); // Open file in append mode
+    dataFile << "particle_name,x_meters,y_meters,z_meters,px,py,pz\n"; // TODO momentum units??
+    dataFile.close();
+    G4cout << "datafile closed" << G4endl;
+  }
+
+  // Change parameters of looping particles. TODO delete?
   ChangeLooperParameters( G4Electron::Definition() );
 }
 
 void RunAction::ChangeLooperParameters(const G4ParticleDefinition* particleDef )
 {
   if( particleDef == nullptr )
-     particleDef = G4Electron::Definition();
+    particleDef = G4Electron::Definition();
   auto transportPair= findTransportation( particleDef );
   auto transport = transportPair.first;
   auto coupledTransport = transportPair.second;
 
   if( transport != nullptr )
   { 
-     // Change the values of the looping particle parameters of Transportation 
-     if( fWarningEnergy   >= 0.0 )
-        transport->SetThresholdWarningEnergy(  fWarningEnergy ); 
-     if( fImportantEnergy >= 0.0 )
-        transport->SetThresholdImportantEnergy(  fImportantEnergy ); 
-     if( fNumberOfTrials  > 0 )
-        transport->SetThresholdTrials( fNumberOfTrials );
+    // Change the values of the looping particle parameters of Transportation 
+    if( fWarningEnergy   >= 0.0 )
+      transport->SetThresholdWarningEnergy(  fWarningEnergy ); 
+    if( fImportantEnergy >= 0.0 )
+      transport->SetThresholdImportantEnergy(  fImportantEnergy ); 
+    if( fNumberOfTrials  > 0 )
+      transport->SetThresholdTrials( fNumberOfTrials );
   }
   else if( coupledTransport != nullptr )
   { 
-     // Change the values for Coupled Transport
-     if( fWarningEnergy   >= 0.0 )
-        coupledTransport->SetThresholdWarningEnergy(  fWarningEnergy ); 
-     if( fImportantEnergy >= 0.0 )
-        coupledTransport->SetThresholdImportantEnergy(  fImportantEnergy ); 
-     if( fNumberOfTrials  > 0 )
-        coupledTransport->SetThresholdTrials( fNumberOfTrials );
+    // Change the values for Coupled Transport
+    if( fWarningEnergy   >= 0.0 )
+      coupledTransport->SetThresholdWarningEnergy(fWarningEnergy); 
+    if( fImportantEnergy >= 0.0 )
+      coupledTransport->SetThresholdImportantEnergy(fImportantEnergy); 
+    if( fNumberOfTrials  > 0 )
+      coupledTransport->SetThresholdTrials(fNumberOfTrials);
   }
 }
 
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void RunAction::EndOfRunAction(const G4Run*)
 {
-   G4cout << "Run complete!" << G4endl;
+  int threadID = G4Threading::G4GetThreadId();
 
-   /*
-  G4cout << "Writing results to histogram...";
-  fEnergyHist_1->WriteHistogramToFile("electron_dep_" + fHistogramFileName);
-  fEnergyHist2D_1->Write2DHistogram("electron_ene_"   + fHistogramFileName);
-  fEnergyHist_2->WriteHistogramToFile("photon_dep_"   + fHistogramFileName);   
-  fEnergyHist2D_2->Write2DHistogram("photon_ene_"     + fHistogramFileName);   
-  G4cout << "complete!" << G4endl;
-  */
+  // If we are not the main thread, write energy deposition to file and exit
+  if(threadID != -1)
+  {
+    std::string threadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadID) + ".csv"; // Thread-specific filename
+    fEnergyDepositionHistogram->WriteHistogramToFile(threadFilename);
+    G4cout << "Thread " + std::to_string(threadID) + " complete" << G4endl;
+    return;
+  }
 
+  // If we are the main thread, merge energy deposition datafiles from each thread. Main thread ends after workers are done, so this is the end of the simulation
+  G4cout << "Main Thread: Merging energy deposition data... ";
+
+  // Instantiate merged histogram
+  myHistogram* mainEnergyDepositionHistogram = new myHistogram(); // 1000 km in 1 km bins
+
+  // Add energy deposition from each thread to the merged histogram
+  for(int threadFileToMerge = 0; threadFileToMerge < 8; threadFileToMerge++)
+  {
+    std::string threadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadFileToMerge) + ".csv"; // Thread-specific filename
+
+    // Read in CSV from this thread
+    io::CSVReader<2> in(threadFilename);
+    in.read_header(io::ignore_extra_column, "altitude_km", "energy_deposition_kev");
+    int altitudeAddress; double energy_deposition;
+
+    // For each row in the file, add energy deposition to main histogram
+    while(in.read_row(altitudeAddress, energy_deposition)){ 
+      mainEnergyDepositionHistogram->AddCountToBin(altitudeAddress, energy_deposition); // TODO isn't working in for loop -- why?
+    }
+
+    // Delete this thread-specific file
+    std::remove(threadFilename.c_str());
+  }
+
+  // Write main energy histogram to file
+  mainEnergyDepositionHistogram->WriteHistogramToFile(fEnergyDepositionFileName);
+
+  // Status message and exit
+  G4cout << G4endl << "Done" << G4endl;
 }
 
 
@@ -158,4 +192,3 @@ std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransporta
 }
 
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

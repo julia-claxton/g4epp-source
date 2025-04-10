@@ -1,5 +1,16 @@
-/control/alias NUMBER_OF_PARTICLES 100
 /control/alias G4EPP_BUILD_DIR /Users/luna/Documents/Work/Research/geant4/G4EPP-build # Do not include a slash at the end
+
+/control/alias INITIAL_ALTITUDE_KM 450.0 # Starting altitude of particles in the simulation
+/control/alias NUMBER_OF_PARTICLES 100
+
+
+# TODO allow user to change -- probably want them to be command line arguments
+# fWarningEnergy # Particles below this energy are killed after 1 step. Value arbitrary 
+# fImportantEnergy # Particles above this energy are killed after fNumberOfTrials if they are looping. Value arbitrary 
+# fNumberOfTrials # Number of trials before a looping 'important' particle is killed?. Value arbitrary. Set very high to avoid losing particles
+# particle type, e- p+ gamma
+# collection altitude
+
 
 /control/echo Executing Run: {BEAM_ENERGY_KEV} keV, {BEAM_PITCH_ANGLE}º...
 
@@ -36,13 +47,16 @@
 /process/em/setSecBiasing eBrem world 100 100 MeV
 
 # Set result filepaths
-/dataCollection/setHistFileName spectra{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg.csv
-/dataCollection/setBackscatterFilename {G4EPP_BUILD_DIR}/results/backscatter_{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg_{NUMBER_OF_PARTICLES}electrons.csv
+/control/alias RESULTS_DIR {G4EPP_BUILD_DIR}/results
+/control/alias BEAM_PARAMETERS {BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg_{NUMBER_OF_PARTICLES}electrons
+
+/dataCollection/setEnergyDepositionFileName {RESULTS_DIR}/energy_deposition_{BEAM_PARAMETERS}.csv
+/dataCollection/setBackscatterFilename {RESULTS_DIR}/backscatter_{BEAM_PARAMETERS}.csv
 
 # Set beam parameters
 /energy/setFoldingEnergy {BEAM_ENERGY_KEV} # [keV]
 /energy/setMaximumPitchAngle {BEAM_PITCH_ANGLE}  # [deg]
-/energy/particleStartingAltitude 450.0  # [km A1B]
+/energy/particleStartingAltitude {INITIAL_ALTITUDE_KM}
 
 # Execute run
 /control/echo Executing Run: {BEAM_ENERGY_KEV} keV, {BEAM_PITCH_ANGLE}º...

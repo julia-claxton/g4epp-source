@@ -49,9 +49,9 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),
   fParticleGun(0),
   fPrimaryMessenger(0),
-  fEnergyDistType(0),
-  fPitchAngleDistType(0),
-  fE0(100.),
+  //fEnergyDistType(0),
+  //fPitchAngleDistType(0),
+  fInitialEnergy(100.),
   fMaxPitchAngle(40.),
   fInitialParticleAlt(500.),
   fPI(3.14159265359),
@@ -62,13 +62,12 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   
   fPrimaryMessenger = new PrimaryGeneratorMessenger(this);
   
-  G4ParticleDefinition* electronParticle = G4ParticleTable::GetParticleTable()->FindParticle("e-");
+  G4ParticleDefinition* electronParticle = G4ParticleTable::GetParticleTable()->FindParticle("e-"); // Electron = "e-", proton = "proton", gamma = "gamma"
 
   // Selects electron for particle type
   fParticleGun->SetParticleDefinition(electronParticle);
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
@@ -76,11 +75,10 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
   delete fPrimaryMessenger;
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void PrimaryGeneratorAction::GenerateElectrons(ParticleSample* r)
 {
-  // Generates particles to propagate in simulation.
+  // Generates particles to propagate in simulation
 
   // Initial position random variables
   // Starts the particle position on a random uniform sampling of a circular area
@@ -109,7 +107,7 @@ void PrimaryGeneratorAction::GenerateElectrons(ParticleSample* r)
   r->zDir = std::sin(tilt_angle) * r->yDir + std::cos(tilt_angle) * r->zDir;
 
   // Set energy
-  r->energy = fE0 * keV;
+  r->energy = fInitialEnergy * keV;
 }
 
 void PrimaryGeneratorAction::GenerateSolarSpectra(ParticleSample* r)
@@ -149,11 +147,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       throw std::invalid_argument("Enter a valid source type");
   }
 
-  fParticleGun->SetParticlePosition(
-		  G4ThreeVector(r->xPos, r->yPos, r->zPos)); 
+  fParticleGun->SetParticlePosition(G4ThreeVector(r->xPos, r->yPos, r->zPos)); 
   
-  fParticleGun->SetParticleMomentumDirection(
-		  G4ThreeVector(r->xDir, r->yDir, r->zDir));
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(r->xDir, r->yDir, r->zDir));
   
   fParticleGun->SetParticleEnergy(r->energy);
   

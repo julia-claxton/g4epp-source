@@ -38,7 +38,7 @@
 /process/em/setSecBiasing eBrem world 100 100 MeV
 
 # Set result filepaths
-/dataCollection/setHistFileName spectra{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg.csv
+/dataCollection/setEnergyDepositionFileName spectra{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg.csv
 /dataCollection/setBackscatterFilename {G4EPP_BUILD_DIR}/results/electron_backscatter_{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg_{NUMBER_OF_PARTICLES}particles.csv
 
 # Set beam parameters

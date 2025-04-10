@@ -51,59 +51,45 @@ class myHistogram;
 
 class RunActionMessenger;
 
-/// Run action class
-///
-/// In EndOfRunAction(), it calculates the dose in the selected volume
-/// from the energy deposit accumulated via stepping and event actions.
-/// The computed dose is then printed on the screen.
-
 class RunAction : public G4UserRunAction
 {
   public:
     RunAction();
     virtual ~RunAction();
-
-    // virtual G4Run* GenerateRun();
     virtual void BeginOfRunAction(const G4Run*);
     virtual void   EndOfRunAction(const G4Run*);
 
-    void SetHistFileName(G4String name){fHistogramFileName=name;};
+    void SetEnergyDepositionFileName(G4String name){fEnergyDepositionFileName=name;};
+    void SetBackscatterFilename(G4String name){fBackscatterFilename = name;}; 
 
     // Helper method to change the Transportation's 'looper' parameters 
     void ChangeLooperParameters(const G4ParticleDefinition* particleDef );
 
     // Helper method to find the Transportation process for a particle type 
-    std::pair<G4Transportation*, G4CoupledTransportation*>
-     findTransportation( const G4ParticleDefinition * particleDef,
-                         bool reportError= true );
+    std::pair<G4Transportation*, G4CoupledTransportation*> findTransportation(const G4ParticleDefinition * particleDef, bool reportError= true);
+
+  public: // TODO delete?
+    void     SetNumberOfTrials( G4int val ){fNumberOfTrials  = val;}
+    void     SetWarningEnergy( double val ){fWarningEnergy   = val;}
+    void     SetImportantEnergy( double val ){fImportantEnergy = val;}   
+    G4int    GetNumberOfTrials(){ return fNumberOfTrials; }
+    G4double GetWarningEnergy(){ return fWarningEnergy; }
+    G4double GetImportantEnergy(){ return fImportantEnergy; } 
 
   public:
-    void     SetNumberOfTrials( G4int val )   { fNumberOfTrials  = val; }
-    void     SetWarningEnergy( double val )   { fWarningEnergy   = val; }
-    void     SetImportantEnergy( double val ) { fImportantEnergy = val; }   
-    G4int    GetNumberOfTrials()  { return fNumberOfTrials; }
-    G4double GetWarningEnergy()   { return fWarningEnergy; }
-    G4double GetImportantEnergy() { return fImportantEnergy; } 
-
-  public:
-    myHistogram*           fEnergyHist_1;
-    myHistogram*           fEnergyHist2D_1;
-    myHistogram*           fEnergyHist_2;
-    myHistogram*           fEnergyHist2D_2;
+    myHistogram* fEnergyDepositionHistogram; 
   
   private:
-    RunActionMessenger*    fRunActionMessenger;
-    G4String 		   fHistogramFileName;
-  
+    RunActionMessenger* fRunActionMessenger;
+    G4String fEnergyDepositionFileName;
+    G4String fBackscatterFilename;
+
     // Values for initialising 'loopers' parameters of Transport process
     G4int    fNumberOfTrials  =  0;    // Default will not overwrite
     G4double fWarningEnergy   = -1.0;  // Default values - non operational 
     G4double fImportantEnergy = -1.0;  // Default - will not overwrite
 
-    int    theVerboseLevel = 0;
-
-
+    int theVerboseLevel = 0;
 };
-
 
 #endif

@@ -33,8 +33,6 @@
 //   Field Setup class implementation.
 //
 //
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "F03FieldSetup.hh"
 #include "F03FieldMessenger.hh"
@@ -68,7 +66,6 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 F03FieldSetup::F03FieldSetup()
  : fFieldManager(0),
@@ -94,7 +91,6 @@ F03FieldSetup::F03FieldSetup()
   UpdateField();
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 F03FieldSetup::~F03FieldSetup()
 {
@@ -104,7 +100,6 @@ F03FieldSetup::~F03FieldSetup()
   delete fFieldMessenger;
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void F03FieldSetup::UpdateField()
 {
@@ -115,10 +110,11 @@ void F03FieldSetup::UpdateField()
   delete fChordFinder;
   fChordFinder= nullptr;
 
-  G4cout<<"F03FieldSetup::UpdateField > The minimal step is equal to "
-        << fMinStep/mm <<" mm"<<G4endl;
-  G4cout<<"                            Stepper Type chosen = " << fStepperType
-        << G4endl;
+  /*
+  // Excess verbosity
+  G4cout<<"F03FieldSetup::UpdateField > The minimal step is equal to " << fMinStep/mm <<" mm"<<G4endl;
+  G4cout<<"                            Stepper Type chosen = " << fStepperType << G4endl;
+  */
 
   // 2. Create the steppers ( Note: this also deletes the previous ones. )
   SetStepper();
@@ -132,7 +128,6 @@ void F03FieldSetup::UpdateField()
   fFieldManager->SetDetectorField(fMagneticField);
   
 }
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void F03FieldSetup::SetStepper()
 {
@@ -189,7 +184,6 @@ void F03FieldSetup::SetStepper()
   }
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void F03FieldSetup::SetFieldValue(G4double fieldStrength)
 {
@@ -197,7 +191,6 @@ void F03FieldSetup::SetFieldValue(G4double fieldStrength)
   SetFieldValue( fieldSetVec );
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void F03FieldSetup::SetFieldValue(G4ThreeVector fieldVector)
 {
@@ -227,11 +220,9 @@ void F03FieldSetup::SetFieldValue(G4ThreeVector fieldVector)
 
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4FieldManager* F03FieldSetup::GetGlobalFieldManager(){
   return G4TransportationManager::GetTransportationManager()
                                   ->GetFieldManager();
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

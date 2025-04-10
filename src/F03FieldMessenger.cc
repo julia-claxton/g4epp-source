@@ -30,8 +30,6 @@
 // $Id: F03FieldMessenger.cc 96980 2016-05-19 09:41:22Z gcosmo $
 //
 //
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "F03FieldMessenger.hh"
 
@@ -42,7 +40,6 @@
 
 #include "G4SystemOfUnits.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 F03FieldMessenger::F03FieldMessenger(F03FieldSetup* fieldSetup)
  : G4UImessenger(),
@@ -83,7 +80,6 @@ F03FieldMessenger::F03FieldMessenger(F03FieldSetup* fieldSetup)
   fMinStepCmd->AvailableForStates(G4State_Idle);
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 F03FieldMessenger::~F03FieldMessenger()
 {
@@ -94,7 +90,6 @@ F03FieldMessenger::~F03FieldMessenger()
   delete fUpdateCmd;
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void F03FieldMessenger::SetNewValue( G4UIcommand* command, G4String newValue)
 {
@@ -114,4 +109,3 @@ void F03FieldMessenger::SetNewValue( G4UIcommand* command, G4String newValue)
     fEMfieldSetup->SetMinStep(fMinStepCmd->GetNewDoubleValue(newValue));
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
