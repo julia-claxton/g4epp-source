@@ -82,15 +82,19 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     G4cout << "Particle killed at: " << step->GetPreStepPoint()->GetKineticEnergy()/keV << " keV , Process: " << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << G4endl;
   }
 
-  // Get particle info for use in logging below
-  const G4String      particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
-  const G4ThreeVector position     = track->GetPosition();
-  const G4ThreeVector momentum     = track->GetMomentumDirection();
+  // ===========================
+  // Data Logging
+  // ===========================
+  // Dividing by a unit outputs data in that unit, so divisions by keV result in outputs in keV
+  // https://geant4-internal.web.cern.ch/sites/default/files/geant4/collaboration/working_groups/electromagnetic/gallery/units/SystemOfUnits.html
+  const G4String      particleName      = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
+  const G4ThreeVector position          = track->GetPosition();
+  const G4ThreeVector momentumDirection = track->GetMomentumDirection();
 
   // ===========================
   // Energy Deposition Tracking
   // ===========================
-  // Add energy deposition to vector owned by RunAction, which is written to a results file per simulation run  
+  // Add energy deposition to vector owned by RunAction, which is written to a results file at the end of each thread's simulation run  
   G4double zPos = position.z(); // Particle altitude in world coordinates
   G4int altitudeAddress = std::floor(500.0 + zPos/km); // Index to write to. Equal to altitude above sea level in km, to nearest whole km
   
@@ -100,136 +104,40 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     LogEnergy(altitudeAddress, energyDeposition/keV); // Threadlocking occurs inside LogEnergy
   }
 
-
-  // TODO headers on result file for backscatter
-
-
   // ===========================
   // Backscatter Tracking
-  // ===========================        
-  if( (position.z()/km > 450.0-500.0) && (momentum.z() > 0) ) // If particle is above 450 km and moving upwards. Subtract 500 because 0.0 in world coordinates = +500 km above sea level
+  // =========================== 
+  // Write backscatter directly to file if detected       
+  if( (position.z()/km > 450.0-500.0) && (momentumDirection.z() > 0) ) // If particle is above 450 km and moving upwards. Subtract 500 because 0.0 in world coordinates = +500 km above sea level
   {
     // Lock scope to stop threads from overwriting data in same file
     G4AutoLock lock(&aMutex);
 
-    // Write position and momentum to file
+    // Get particle energy
     const G4double preStepEnergy =  step->GetPreStepPoint()->GetKineticEnergy();
 
+    // Write position and directional kinetic energy to file
     std::ofstream dataFile;
     dataFile.open(fBackscatterFilename, std::ios_base::app); // Open file in append mode
-    if (!dataFile.is_open()) {
-        std::cerr << "Failed to open file!" << std::endl;
-        throw;
-    }
-    
     dataFile 
       << particleName << ','
       << position.x()/m << ',' 
       << position.y()/m << ','
       << (position.z()/m) + 500000 << ',' // Shift so we are writing altitude above sea level to file rather than the world coordinates
-      << momentum.x() * preStepEnergy/keV << ','
-      << momentum.y() * preStepEnergy/keV << ','
-      << momentum.z() * preStepEnergy/keV << '\n'; 
+      << momentumDirection.x() * preStepEnergy/keV << ','
+      << momentumDirection.y() * preStepEnergy/keV << ','
+      << momentumDirection.z() * preStepEnergy/keV << '\n'; 
     dataFile.close();
 
     // Kill particle after data collection
     track->SetTrackStatus(fStopAndKill);
     G4cout << "Recorded and killed upgoing " << particleName << " at 450 km" << G4endl; // Status message
   }
-
-  /*
-  switch(fDataCollectionType)
-  {
-    
-    case(0):  // Collects energy deposition per altitude
-    { 
-    	// Gets energy delta of particle over step length
-    	const G4double energyDep = step->GetPreStepPoint()->GetKineticEnergy() - step->GetPostStepPoint()->GetKineticEnergy();
-          
-      if(energyDep > fEnergyThreshold_keV*keV)
-      {
-        // Gets altitude of particle
-        G4ThreeVector position = track->GetPosition();
-        G4double      zPos     = position.z();
-
-        // Adds energy deposition to vector owned by RunAction, which is
-        // written to a results file per simulation run
-        G4int altitudeAddress = std::floor(500. + zPos/km);
-
-        // Thread lock this so only one thread can deposit energy into
-        // the histogram at a time. Unlocks when l goes out of scope.
-        if(altitudeAddress > 0 && altitudeAddress < 1000) 
-        {
-          LogEnergy(altitudeAddress, energyDep/keV);
-        }
-      }
-
-      // If not e- or gamma, move on
-      break;
-    }
-
-    case(4): // Radiation and ionization histograms 
-    {
-      // Electron analysis
-      if(track->GetDynamicParticle()->GetDefinition()->GetParticleName() == "e-")
-      {
-        // Gets energy delta of particle over step length
-        G4double energyBefore = step->GetPreStepPoint()->GetKineticEnergy(); 
-        G4double energyAfter = step->GetPostStepPoint()->GetKineticEnergy();
-        G4double energyDep = energyBefore - energyAfter;
-
-        // Gets altitude of particle
-        G4ThreeVector position = track->GetPosition();
-        G4double      zPos     = position.z();
-    
-        // Adds energy deposition to vector owned by RunAction, which is
-        // written to a results file per simulation run
-        G4int altitudeAddress = std::floor(500. + zPos/km);
-        
-        // Check for valid altitude address
-        if(altitudeAddress > 0 && altitudeAddress < 1000 && energyDep > 0. && energyAfter > 0. && !std::isnan(energyDep) && !std::isnan(energyAfter)) 
-          // check if energies are nan 
-        {
-          LogEnergyToSpecificHistogram(altitudeAddress, energyDep, energyAfter, 1);
-        }
-      }
-
-      // Check if particle is a photon 
-      else if(track->GetDynamicParticle()->GetDefinition()->GetParticleName() == "gamma")
-      {
-        // Gets energy delta of particle over step length
-        G4double energyBefore = step->GetPreStepPoint()->GetKineticEnergy(); 
-        G4double energyAfter = step->GetPostStepPoint()->GetKineticEnergy();
-        G4double energyDep = energyBefore - energyAfter;
-          
-        // Gets altitude of particle
-              G4ThreeVector position = track->GetPosition();
-              G4double      zPos     = position.z();
-            
-              // Adds energy deposition to vector owned by RunAction, which is
-              // written to a results file per simulation run
-        G4int altitudeAddress = std::floor(500. + zPos/km);
-      
-        // Check for valid altitude address
-        if(altitudeAddress > 0 && altitudeAddress < 1000 && energyDep > 0. && energyAfter > 0. && !std::isnan(energyDep) && !std::isnan(energyAfter)) 
-        {
-          LogEnergyToSpecificHistogram(altitudeAddress, energyDep, energyAfter, 2);
-        }
-      }
-      
-      // If not e- or gamma, move on
-      break;
-    }
-    
-    default: 
-      throw std::runtime_error("Enter a valid data collection type!");
-      break;
-  }
-  */
 }
 
 void SteppingAction::LogEnergy(G4int histogramAddress, G4double energy)
 {
+  // This is in a different function so the threadlock isn't in scope for all of every step
   G4AutoLock lock(&aMutex);
   fRunAction->fEnergyDepositionHistogram->AddCountToBin(histogramAddress, energy/keV);
 }

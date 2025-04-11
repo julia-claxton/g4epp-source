@@ -49,13 +49,13 @@
 #include "RunActionMessenger.hh"
 
 #include <fstream>
+#include <regex>
 #include "../include/csv.h"
 
 RunAction::RunAction():
   G4UserRunAction(),
   fRunActionMessenger(),
-  fEnergyDepositionFileName(),
-  fBackscatterFilename()
+  fEnergyDepositionFileName()
 {
   fWarningEnergy = 0.01 * keV; // Particles below this energy are killed after 1 step. Value arbitrary 
   fImportantEnergy = 0.1 * keV; // Particles above this energy are killed after fNumberOfTrials if they are looping. Value arbitrary 
@@ -75,20 +75,23 @@ RunAction::~RunAction()
 
 void RunAction::BeginOfRunAction(const G4Run*)
 {
-  int threadID = G4Threading::G4GetThreadId();
-
   // If we are the main thread, create backscatter file and write header
+  int threadID = G4Threading::G4GetThreadId();
   if(threadID == -1)
   {
-    // after adding this block, writes in steppingaction stopped working. fix!!
+    // I am having a lot of trouble getting RunAction and SteppingAction to both own the backscatter filename, so 
+    // we will just reconstruct the backscatter filename from the energy deposition filename which RunAction owns.
+    // If the format of either backscatter or energy deposition files changes, this might break. Don't change those!
+    std::string backscatterFilename = std::regex_replace(fEnergyDepositionFileName, std::regex("energy_deposition"), "backscatter");
+  
+    // Write header
     std::ofstream dataFile;
-    dataFile.open(fBackscatterFilename, std::ios_base::app); // Open file in append mode
-    dataFile << "particle_name,x_meters,y_meters,z_meters,px,py,pz\n"; // TODO momentum units??
+    dataFile.open(backscatterFilename, std::ios_base::app); // Open file in append mode
+    dataFile << "particle_name,x_meters,y_meters,z_meters,kinetic_energy_x_keV,kinetic_energy_y_keV,kinetic_energy_z_keV\n";
     dataFile.close();
-    G4cout << "datafile closed" << G4endl;
   }
 
-  // Change parameters of looping particles. TODO delete?
+  // Change parameters of looping particles. TODO delete? doesn't do anything right now
   ChangeLooperParameters( G4Electron::Definition() );
 }
 
@@ -138,8 +141,6 @@ void RunAction::EndOfRunAction(const G4Run*)
 
   // If we are the main thread, merge energy deposition datafiles from each thread. Main thread ends after workers are done, so this is the end of the simulation
   G4cout << "Main Thread: Merging energy deposition data... ";
-
-  // Instantiate merged histogram
   myHistogram* mainEnergyDepositionHistogram = new myHistogram(); // 1000 km in 1 km bins
 
   // Add energy deposition from each thread to the merged histogram
@@ -156,36 +157,31 @@ void RunAction::EndOfRunAction(const G4Run*)
     while(in.read_row(altitudeAddress, energy_deposition)){ 
       mainEnergyDepositionHistogram->AddCountToBin(altitudeAddress, energy_deposition); // TODO isn't working in for loop -- why?
     }
-
     // Delete this thread-specific file
     std::remove(threadFilename.c_str());
   }
-
   // Write main energy histogram to file
   mainEnergyDepositionHistogram->WriteHistogramToFile(fEnergyDepositionFileName);
-
-  // Status message and exit
   G4cout << G4endl << "Done" << G4endl;
 }
 
 
 std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransportation(const G4ParticleDefinition* particleDef, bool reportError)
 {
-  const auto *partPM=  particleDef->GetProcessManager();
+  const auto *partPM = particleDef->GetProcessManager();
     
   G4VProcess* partTransport = partPM->GetProcess("Transportation");
   auto transport= dynamic_cast<G4Transportation*>(partTransport);
 
   partTransport = partPM->GetProcess("CoupledTransportation");
-  auto coupledTransport=
-     dynamic_cast<G4CoupledTransportation*>(partTransport);
+  auto coupledTransport = dynamic_cast<G4CoupledTransportation*>(partTransport);
 
   if( reportError && !transport && !coupledTransport )
   {
-     G4cerr << "Unable to find Transportation process for particle type "
-            << particleDef->GetParticleName()
-            << "  ( PDG code = " << particleDef->GetPDGEncoding() << " ) "
-            << G4endl;
+    G4cerr << "Unable to find Transportation process for particle type "
+           << particleDef->GetParticleName()
+           << "  ( PDG code = " << particleDef->GetPDGEncoding() << " ) "
+    << G4endl;
   }
   
   return std::make_pair( transport, coupledTransport );

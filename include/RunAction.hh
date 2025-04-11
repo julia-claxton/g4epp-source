@@ -37,18 +37,12 @@
 #include <vector>
 #include "myHistogram.hh"
 
-// Choose your fighter:
-// #include "g4root.hh"
-//#include "g4xml.hh"
-// #include "g4csv.hh"
-
 class G4ParticleDefinition;
 class G4Transportation;
 class G4CoupledTransportation;
 class G4Run;
 class SteppingAction;
 class myHistogram;
-
 class RunActionMessenger;
 
 class RunAction : public G4UserRunAction
@@ -58,17 +52,11 @@ class RunAction : public G4UserRunAction
     virtual ~RunAction();
     virtual void BeginOfRunAction(const G4Run*);
     virtual void   EndOfRunAction(const G4Run*);
-
     void SetEnergyDepositionFileName(G4String name){fEnergyDepositionFileName=name;};
-    void SetBackscatterFilename(G4String name){fBackscatterFilename = name;}; 
+    void ChangeLooperParameters(const G4ParticleDefinition* particleDef ); // Helper method to change the Transportation's 'looper' parameters 
+    std::pair<G4Transportation*, G4CoupledTransportation*> findTransportation(const G4ParticleDefinition * particleDef, bool reportError= true); // Helper method to find the Transportation process for a particle type 
 
-    // Helper method to change the Transportation's 'looper' parameters 
-    void ChangeLooperParameters(const G4ParticleDefinition* particleDef );
-
-    // Helper method to find the Transportation process for a particle type 
-    std::pair<G4Transportation*, G4CoupledTransportation*> findTransportation(const G4ParticleDefinition * particleDef, bool reportError= true);
-
-  public: // TODO delete?
+  public: // TODO delete or don't set these in the constructor
     void     SetNumberOfTrials( G4int val ){fNumberOfTrials  = val;}
     void     SetWarningEnergy( double val ){fWarningEnergy   = val;}
     void     SetImportantEnergy( double val ){fImportantEnergy = val;}   
@@ -82,7 +70,6 @@ class RunAction : public G4UserRunAction
   private:
     RunActionMessenger* fRunActionMessenger;
     G4String fEnergyDepositionFileName;
-    G4String fBackscatterFilename;
 
     // Values for initialising 'loopers' parameters of Transport process
     G4int    fNumberOfTrials  =  0;    // Default will not overwrite

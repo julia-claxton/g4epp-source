@@ -47,6 +47,7 @@
 /process/em/setSecBiasing eBrem world 100 100 MeV
 
 # Set result filepaths
+# DO /NOT/ CHANGE THESE OR ELSE BAD THINGS WILL HAPPEN!!!
 /control/alias RESULTS_DIR {G4EPP_BUILD_DIR}/results
 /control/alias BEAM_PARAMETERS {BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg_{NUMBER_OF_PARTICLES}electrons
 
