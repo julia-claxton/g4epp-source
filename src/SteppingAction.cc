@@ -49,7 +49,6 @@ SteppingAction::SteppingAction(EventAction* eventAction, RunAction* RuAct)
 : G4UserSteppingAction(),
   fEventAction(eventAction),
   fRunAction(RuAct),
-  //fEnergyThreshold_keV(0.),
   fBackscatterFilename(),
   fSteppingMessenger()
 {
@@ -64,31 +63,35 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // Guard Block
   // ===========================
   G4Track* track = step->GetTrack();
+  const G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
+  G4double postStepKineticEnergy = step->GetPostStepPoint()->GetKineticEnergy();
 
   // Check for NaN energy
-  if( std::isnan(step->GetPostStepPoint()->GetKineticEnergy()) )
+  if(std::isnan(postStepKineticEnergy))
   {  
     track->SetTrackStatus(fStopAndKill);
-    G4cout << "Particle killed for negative energy." << G4endl;
-    G4cout << "Particle killed at: " << step->GetPreStepPoint()->GetKineticEnergy()/keV << " keV , Process: " << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << G4endl;
+    G4cout << "Killed " << particleName << "at " << postStepKineticEnergy/keV << " keV. Reason: NaN energy. Process: " << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << G4endl;
   }
 
   // Check for exceeding 1 second of simulation time
-  G4double time = track->GetProperTime();
-  if(time/second > 1)
+  if(track->GetProperTime()/second > 1)
   {
     track->SetTrackStatus(fStopAndKill);
-    G4cout << "Particle killed for time > 1s." << G4endl;
-    G4cout << "Particle killed at: " << step->GetPreStepPoint()->GetKineticEnergy()/keV << " keV , Process: " << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << G4endl;
+    G4cout << "Killed " << particleName << "at " << postStepKineticEnergy/keV << " keV. Reason: Exceeded 1s simulation time. Process: " << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << G4endl;
+  }
+
+  // Check for stuck photons. Occassionally they seem to get 'wedged' between atmospheric layers and stop propagating without being automatically killed, hanging the program forever
+  if((step->GetStepLength()/m < 1e-12) && particleName == "gamma"){
+    track->SetTrackStatus(fStopAndKill);
+    G4cout << "Killed " << particleName << " at " << postStepKineticEnergy/keV << " keV. Reason: Stuck gamma. Current step length: " << step->GetStepLength()/m << " m" << G4endl;
   }
 
   // ===========================
-  // Data Logging
+  // Begin Data Logging
   // ===========================
   // Dividing by a unit outputs data in that unit, so divisions by keV result in outputs in keV
   // https://geant4-internal.web.cern.ch/sites/default/files/geant4/collaboration/working_groups/electromagnetic/gallery/units/SystemOfUnits.html
-  const G4String      particleName      = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
-  const G4ThreeVector position          = track->GetPosition();
+  const G4ThreeVector position = track->GetPosition();
   const G4ThreeVector momentumDirection = track->GetMomentumDirection();
 
   // ===========================
@@ -107,7 +110,8 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // ===========================
   // Backscatter Tracking
   // =========================== 
-  // Write backscatter directly to file if detected       
+  // TODO set 
+  // Write backscatter directly to file if detected
   if( (position.z()/km > 450.0-500.0) && (momentumDirection.z() > 0) ) // If particle is above 450 km and moving upwards. Subtract 500 because 0.0 in world coordinates = +500 km above sea level
   {
     // Lock scope to stop threads from overwriting data in same file
@@ -131,7 +135,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 
     // Kill particle after data collection
     track->SetTrackStatus(fStopAndKill);
-    G4cout << "Recorded and killed upgoing " << particleName << " at 450 km" << G4endl; // Status message
+    // G4cout << "Recorded and killed upgoing " << particleName << " at 450 km" << G4endl; // Optional status message
   }
 }
 

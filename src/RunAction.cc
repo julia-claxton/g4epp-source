@@ -52,14 +52,18 @@
 #include <regex>
 #include "../include/csv.h"
 
+// Initialize autolock
+namespace{ G4Mutex aMutex=G4MUTEX_INITIALIZER; } 
+
 RunAction::RunAction():
   G4UserRunAction(),
   fRunActionMessenger(),
   fEnergyDepositionFileName()
 {
+  // TODO make user specifiable in the macro
   fWarningEnergy = 0.01 * keV; // Particles below this energy are killed after 1 step. Value arbitrary 
   fImportantEnergy = 0.1 * keV; // Particles above this energy are killed after fNumberOfTrials if they are looping. Value arbitrary 
-  fNumberOfTrials = 1000; // Number of trials before a looping 'important' particle is killed. Value arbitrary. Set very high to avoid losing particles
+  fNumberOfTrials = 500; // Number of trials before a looping 'important' particle is killed. Value arbitrary
 
   fRunActionMessenger = new RunActionMessenger(this); 
 
@@ -99,35 +103,38 @@ void RunAction::ChangeLooperParameters(const G4ParticleDefinition* particleDef )
 {
   if( particleDef == nullptr )
     particleDef = G4Electron::Definition();
-  auto transportPair= findTransportation( particleDef );
+  auto transportPair= findTransportation(particleDef);
   auto transport = transportPair.first;
   auto coupledTransport = transportPair.second;
 
-  if( transport != nullptr )
+  if(transport != nullptr)
   { 
     // Change the values of the looping particle parameters of Transportation 
-    if( fWarningEnergy   >= 0.0 )
+    if(fWarningEnergy >= 0.0)
       transport->SetThresholdWarningEnergy(  fWarningEnergy ); 
-    if( fImportantEnergy >= 0.0 )
+    if(fImportantEnergy >= 0.0)
       transport->SetThresholdImportantEnergy(  fImportantEnergy ); 
-    if( fNumberOfTrials  > 0 )
+    if(fNumberOfTrials > 0)
       transport->SetThresholdTrials( fNumberOfTrials );
   }
-  else if( coupledTransport != nullptr )
+  else if(coupledTransport != nullptr)
   { 
     // Change the values for Coupled Transport
-    if( fWarningEnergy   >= 0.0 )
+    if(fWarningEnergy >= 0.0)
       coupledTransport->SetThresholdWarningEnergy(fWarningEnergy); 
-    if( fImportantEnergy >= 0.0 )
+    if(fImportantEnergy >= 0.0)
       coupledTransport->SetThresholdImportantEnergy(fImportantEnergy); 
-    if( fNumberOfTrials  > 0 )
+    if(fNumberOfTrials > 0)
       coupledTransport->SetThresholdTrials(fNumberOfTrials);
   }
 }
 
-
 void RunAction::EndOfRunAction(const G4Run*)
 {
+  // Lock scope to prevent race condition
+  G4AutoLock lock(&aMutex);
+
+  // Get thread ID to see if we are main thread or not
   int threadID = G4Threading::G4GetThreadId();
 
   // If we are not the main thread, write energy deposition to file and exit
@@ -140,7 +147,7 @@ void RunAction::EndOfRunAction(const G4Run*)
   }
 
   // If we are the main thread, merge energy deposition datafiles from each thread. Main thread ends after workers are done, so this is the end of the simulation
-  G4cout << "Main Thread: Merging energy deposition data... ";
+  G4cout << "Merging thread-specific energy deposition data... ";
   myHistogram* mainEnergyDepositionHistogram = new myHistogram(); // 1000 km in 1 km bins
 
   // Add energy deposition from each thread to the merged histogram
@@ -162,7 +169,7 @@ void RunAction::EndOfRunAction(const G4Run*)
   }
   // Write main energy histogram to file
   mainEnergyDepositionHistogram->WriteHistogramToFile(fEnergyDepositionFileName);
-  G4cout << G4endl << "Done" << G4endl;
+  G4cout << "Done" << G4endl;
 }
 
 

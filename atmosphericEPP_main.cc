@@ -155,6 +155,11 @@ int main(int argc,char** argv)
     std::cout << "=====================================================================" << std::endl;
     command_to_run = "run_single_beam.mac";
   }
+
+  // Report current system time before beginning run
+  std::time_t current_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+  G4cout << "Starting simulation: " << std::ctime(&current_time) << G4endl;
+  
   // Execute run
   UImanager->ApplyCommand(execute + command_to_run);
 

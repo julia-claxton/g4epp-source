@@ -121,7 +121,6 @@ void F03FieldSetup::UpdateField()
 
   // 3. Create the chord finder(s)
   fChordFinder = new G4ChordFinder(fMagneticField, fMinStep, fStepper);
-
   fFieldManager->SetChordFinder(fChordFinder);
 
   // 4. Ensure that the field is updated (in Field manager & equation)
@@ -133,52 +132,53 @@ void F03FieldSetup::SetStepper()
 {
   delete fStepper;
   fStepper= nullptr;
+  bool reportStepper = false; // Whether to print the stepper beign used to terminal at start of simulation
 
   switch ( fStepperType )
   {
     case 0:
       fStepper = new G4ExplicitEuler( fEquation );
-      G4cout<<"G4ExplicitEuler is called"<<G4endl;
+      if(reportStepper){G4cout<<"G4ExplicitEuler is called"<<G4endl;}
       break;
     case 1:
       fStepper = new G4ImplicitEuler( fEquation );
-      G4cout<<"G4ImplicitEuler is called"<<G4endl;
+      if(reportStepper){G4cout<<"G4ImplicitEuler is called"<<G4endl;}
       break;
     case 2:
       fStepper = new G4SimpleRunge( fEquation );
-      G4cout<<"G4SimpleRunge is called"<<G4endl;
+      if(reportStepper){G4cout<<"G4SimpleRunge is called"<<G4endl;}
       break;
     case 3:
       fStepper = new G4SimpleHeum( fEquation );
-      G4cout<<"G4SimpleHeum is called"<<G4endl;
+      if(reportStepper){G4cout<<"G4SimpleHeum is called"<<G4endl;}
       break;
     case 4:
       fStepper = new G4ClassicalRK4( fEquation );
-      G4cout<<"G4ClassicalRK4 (default) is called"<<G4endl;
+      if(reportStepper){G4cout<<"G4ClassicalRK4 (default) is called"<<G4endl;}
       break;
     case 5:
       fStepper = new G4HelixExplicitEuler( fEquation );
-      G4cout<<"G4HelixExplicitEuler is called"<<G4endl;
+      if(reportStepper){G4cout<<"G4HelixExplicitEuler is called"<<G4endl;}
       break;
     case 6:
       fStepper = new G4HelixImplicitEuler( fEquation );
-      G4cout<<"G4HelixImplicitEuler is called"<<G4endl;
+      if(reportStepper){G4cout<<"G4HelixImplicitEuler is called"<<G4endl;}
       break;
     case 7:
       fStepper = new G4HelixSimpleRunge( fEquation );
-      G4cout<<"G4HelixSimpleRunge is called"<<G4endl;
+      if(reportStepper){G4cout<<"G4HelixSimpleRunge is called"<<G4endl;}
       break;
     case 8:
       fStepper = new G4CashKarpRKF45( fEquation );
-      G4cout<<"G4CashKarpRKF45 is called"<<G4endl;
+      if(reportStepper){G4cout<<"G4CashKarpRKF45 is called"<<G4endl;}
       break;
     case 9:
       fStepper = new G4RKG3_Stepper( fEquation );
-      G4cout<<"G4RKG3_Stepper is called"<<G4endl;
+      if(reportStepper){G4cout<<"G4RKG3_Stepper is called"<<G4endl;}
       break;
     case 10:
       fStepper = new G4DormandPrince745( fEquation );
-      G4cout<<"ode45 is called"<<G4endl;
+      if(reportStepper){G4cout<<"ode45 is called"<<G4endl;}
       break;
     default: fStepper = 0;
   }
