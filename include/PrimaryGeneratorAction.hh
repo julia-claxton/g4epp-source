@@ -48,7 +48,7 @@ struct ParticleSample{
 	G4double energy;
 };
 
-/// The primary generator action class with particle gun.
+/// The primary generator action class with particle gun
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
@@ -63,26 +63,21 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     void GenerateCXB(ParticleSample*);
     
     // Messenger methods
-    void SetEnergy(G4double E0){ fInitialEnergy = E0;};
-    void SetEnergyDistribution(G4int se){ fEnergyDistType = se; };
-    void SetPitchAngleDistribution(G4int pad){fPitchAngleDistType = pad;};
-    void SetMaxPitchAngle(G4double maxPA){ fMaxPitchAngle = maxPA; };
-    void SetPartInitialAlt(G4double alt){ fInitialParticleAlt = alt; };
-    void SetSourceInputType(G4int type){ fSourceType = type; };
-    // method to access particle gun
-    const G4ParticleGun* GetParticleGun() const { return fParticleGun; }
+    void SetBeamEnergy(G4double E0){ fBeamEnergy = E0;};
+    void SetBeamPitchAngle(G4double maxPA){fBeamPitchAngle = maxPA; };
+    void SetParticleInitialAlt(G4double alt){fInitialParticleAlt = alt; };
+    void SetInputParticleType(G4String type){fSourceType = type; };
+    const G4ParticleGun* GetParticleGun() const { return fParticleGun; } // method to access particle gun
   
   private:
-    G4ParticleGun*  fParticleGun; // pointer a to G4 gun class
+    G4ParticleGun*  fParticleGun; // Pointer to G4 gun class
     PrimaryGeneratorMessenger* fPrimaryMessenger;
-    G4int           fEnergyDistType;
-    G4int 	    fPitchAngleDistType;
-    G4double        fInitialEnergy;
-    G4double        fMaxPitchAngle;
-    G4double        fInitialParticleAlt;
-    G4double	    fPI;
-    G4double	    fRad2Deg;
-    G4int           fSourceType;
+    G4double fBeamEnergy;
+    G4double fBeamPitchAngle;
+    G4double fInitialParticleAlt;
+    G4double fPI;
+    G4double fRad2Deg;
+    G4String fSourceType;
 };
 
 #endif

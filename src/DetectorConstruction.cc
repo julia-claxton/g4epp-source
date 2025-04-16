@@ -26,7 +26,7 @@
 // $Id: DetectorConstruction.cc 94307 2015-11-11 13:42:46Z gcosmo $
 //
 /// \file DetectorConstruction.cc
-/// \brief Implementation of the DetectorConstruction class
+/// \brief Creates the atmosphere for EPP simulation from an MSIS-generated file
 
 #include "DetectorConstruction.hh"
 
@@ -70,7 +70,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 {
   // Get nist material manager
   //G4NistManager* nist = G4NistManager::Instance();
-  //G4GeometryManager::GetInstance()->SetWorldMaximumExtent(1000*km) ?
+  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(1000*km);
 
   // Material: Vacuum
   G4Material* vacuum_material = new G4Material(
@@ -127,7 +127,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   );
 
   /*
-  msisAtmosTable contents:
+  msisAtmosTable columns:
   
   [0] - alt [km] 
   [1] - O   * 
@@ -293,9 +293,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
       msisAtmosTable[i][4]*kelvin,  // temperature
       pressure*pascal   	          // pressure
     );
-    
-    // MSIS file columns: alt [km], O, N2, O2, Mass den [g/cm^3], Temp [K], He, Ar, H, N
-    
+        
     // O
     if(msisAtmosTable[i][1] > zeroThreshold) {layerMaterial->AddElement(O, msisAtmosTable[i][1]/totalAtmosMass);}
     // N2

@@ -25,28 +25,28 @@
 //
 
 /*
-To build this, run:
-mkdir G4EPP-build # Can be anywhere
-cd G4EPP-build
+# To build the G4EPP executable: (in zsh)
+cd path/to/G4EPP-build # You'll need to create this directory if it doesn't exist already
+rm -r /path/to/G4EPP-build/ *  # Remove space between / and * at the end before running (C++ gets angry if there's a slash-star in a block comment). Removes any existing files or old builds
+cmake -DCMAKE_INSTALL_PREFIX="/path/to/geant4-install" -DGeant4_DIR="/path/to/geant4-install/lib" /path/to/G4EPP-source
+make # Build executable
+chmod +x ./RUN_ALL.sh # Make the runall script executable by anyone
 
-cmake -DCMAKE_INSTALL_PREFIX="/Users/luna/Documents/Work/Research/geant4/geant4-install" -DGeant4_DIR="/Users/luna/Documents/Work/Research/geant4/geant4-install/lib" "/Users/luna/Documents/Work/Research/geant4/G4EPP-source"
-make
-
-to run:
-./G4EPP test_electrons.mac
-
+# To run the simulation
+./G4EPP <BEAM ENERGY IN KEV> <BEAM PITCH ANGLE IN DEG>
+# or
+./RUN_ALL.sh
 */
 
-
-/// \file electron_detector_main.cc
-/// \brief Main program of the electron detector simulation
+/// \file atmosphericEPP_main.cc
+/// \brief Main function to run Geant4 EPP simulation
 
 // Base simulation building classes
 #include "DetectorConstruction.hh"
 #include "ActionInitialization.hh"
 #include "RunAction.hh"
 
-// Multithreading header support
+// Multithreading support
 #ifdef G4MULTITHREADED
   #include "G4MTRunManager.hh"
   #include "G4Threading.hh"
@@ -69,16 +69,13 @@ to run:
 #include "G4EmParameters.hh"
 #include "G4HadronicProcessStore.hh"
 
+// For time display
 #include <chrono>
 
 // For Printing statistic from Transporation process(es)
 #include "G4Electron.hh"
 #include "G4Transportation.hh"
 #include "G4CoupledTransportation.hh"
-
-// For moving results to subdirectory (because I can't get dataCollection to do it itself) TODO
-#include <filesystem>
-
 
 int main(int argc,char** argv)
 {
@@ -100,13 +97,15 @@ int main(int argc,char** argv)
   seeds[1] = (long) (systime*G4UniformRand());
   G4Random::setTheSeeds(seeds);
 
-  // Construct the default run manager
+  // Construct the run manager
   #ifdef G4MULTITHREADED
+    // Multithreaded mode
     G4MTRunManager* runManager = new G4MTRunManager;
-    int n_threads = 8; // (Julia's computer)
+    int n_threads = 8; // Change this number to the desired number of threads
     runManager->SetNumberOfThreads(n_threads);
     G4cout << "Using " << runManager->GetNumberOfThreads() << " threads." << G4endl;
   #else
+    // Singlethreaded mode
     G4RunManager* runManager = new G4RunManager;
   #endif
 
@@ -129,10 +128,10 @@ int main(int argc,char** argv)
   G4EmParameters::Instance()->SetVerbose(-1);
   G4HadronicProcessStore::Instance()->SetVerbose(0);
 
-  // Get the pointer to the User Interface manager
+  // Get the pointer to the user interface manager
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
-  // Decide command to execute based on command line input
+  // Decide what to execute based on command line input
   G4String execute = "/control/execute ";
   G4String command_to_run;
   
@@ -143,50 +142,57 @@ int main(int argc,char** argv)
     std::cout << "Running in macro mode with " + command_to_run << std::endl;
     std::cout << "=====================================================================" << std::endl;
   }
-  // If 2 arguments are provided, interpret them as an energy and pitch angle to run
-  if(argc == 3){
-    G4String energy = argv[1];
-    G4String pitch_angle = argv[2];
+  // If 3 arguments are provided, interpret them as a particle, energy, and pitch angle to run
+  else if(argc == 4){
+    // Set particle definition variable (uses Geant4's particle names: https://fismed.ciemat.es/GAMOS/GAMOS_doc/GAMOS.5.1.0/x11519.html
+    G4String particle = argv[1];
+    UImanager->ApplyCommand("/control/alias BEAM_PARTICLE " + particle); 
+    
+    // Set particle longname - what the result file will call the input particle. This is just for clarity to 
+    // the end user on what each result file represents, as I think "photon" and "electron" are clearer than
+    // G4's internal names "gamma" and "e-".
+    G4String longname;
+    if(particle == "e-")         {longname = "electron";}
+    else if(particle == "gamma") {longname = "photon";}
+    else                         {longname = particle;}
+    UImanager->ApplyCommand("/control/alias BEAM_PARTICLE_LONGNAME " + longname);
+
+    // Set energy and pitch angle of beam
+    G4String energy = argv[2];
+    G4String pitch_angle = argv[3];
     UImanager->ApplyCommand("/control/alias BEAM_ENERGY_KEV " + energy);
-    UImanager->ApplyCommand("/control/alias BEAM_PITCH_ANGLE " + pitch_angle);
+    UImanager->ApplyCommand("/control/alias BEAM_PITCH_ANGLE_DEG " + pitch_angle);
 
     std::cout << "=====================================================================" << std::endl;
     std::cout << "Running in single beam mode at " + energy + " keV, " + pitch_angle + " deg" << std::endl;
     std::cout << "=====================================================================" << std::endl;
     command_to_run = "run_single_beam.mac";
   }
+  else
+  {
+    std::cout << "Incorrect number of command line arguments provided!" << std::endl;
+    throw;
+  }
 
-  // Report current system time before beginning run
+  // Report current system time before starting the run
   std::time_t current_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   G4cout << "Starting simulation: " << std::ctime(&current_time) << G4endl;
   
   // Execute run
   UImanager->ApplyCommand(execute + command_to_run);
 
-  // Job termination
+  // End run
   // Free the store: user actions, physics_list and detector_description are
   // owned and deleted by the run manager, so they should not be deleted
   // in the main() program !
   delete runManager;
 
-
-
-
-  /*
-  // Move output files to results directory. Can't get dataCollection to do this automatically so we resort to system commands. TODO
-  std::cout << "Moving output files to ./results..." << std::endl;
-  system("mv -f $(find . -name \"electron_*\") ./results");
-  system("mv -f $(find . -name \"photon_*\") ./results");
-  */
-
   // End simulation timer
   auto t_end = std::chrono::high_resolution_clock::now();
 
-  // Calculate elapsed simulation time (realtime, not simulation time)
+  // Report elapsed simulation time (realtime, not simulation time)
   double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
-  std::cout << "Simulation completed in : " << elapsed_time_ms/1000. << " seconds" << std::endl;
+  std::cout << "Simulation completed in : " << elapsed_time_ms/1000.0 << " seconds" << std::endl;
 
   return 0;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....

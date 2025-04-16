@@ -50,10 +50,7 @@
 
 #include <fstream>
 #include <regex>
-#include "../include/csv.h"
-
-// Initialize autolock
-namespace{ G4Mutex aMutex=G4MUTEX_INITIALIZER; } 
+#include "../include/csv.h" // For quickly parsing .csv files. Author credit in file.
 
 RunAction::RunAction():
   G4UserRunAction(),
@@ -63,7 +60,7 @@ RunAction::RunAction():
   // TODO make user specifiable in the macro
   fWarningEnergy = 0.01 * keV; // Particles below this energy are killed after 1 step. Value arbitrary 
   fImportantEnergy = 0.1 * keV; // Particles above this energy are killed after fNumberOfTrials if they are looping. Value arbitrary 
-  fNumberOfTrials = 500; // Number of trials before a looping 'important' particle is killed. Value arbitrary
+  fNumberOfTrials = 1000; // Number of trials before a looping 'important' particle is killed. Value arbitrary
 
   fRunActionMessenger = new RunActionMessenger(this); 
 
@@ -83,25 +80,25 @@ void RunAction::BeginOfRunAction(const G4Run*)
   int threadID = G4Threading::G4GetThreadId();
   if(threadID == -1)
   {
-    // I am having a lot of trouble getting RunAction and SteppingAction to both own the backscatter filename, so 
+    // I am having a lot of trouble getting RunAction and SteppingAction to both see/own the backscatter filename, so 
     // we will just reconstruct the backscatter filename from the energy deposition filename which RunAction owns.
     // If the format of either backscatter or energy deposition files changes, this might break. Don't change those!
     std::string backscatterFilename = std::regex_replace(fEnergyDepositionFileName, std::regex("energy_deposition"), "backscatter");
-  
+        
     // Write header
     std::ofstream dataFile;
-    dataFile.open(backscatterFilename, std::ios_base::app); // Open file in append mode
+    dataFile.open(backscatterFilename, std::ios_base::out); // Open file in write mode to overwrite any previous results
     dataFile << "particle_name,x_meters,y_meters,z_meters,kinetic_energy_x_keV,kinetic_energy_y_keV,kinetic_energy_z_keV\n";
     dataFile.close();
   }
 
-  // Change parameters of looping particles. TODO delete? doesn't do anything right now
+  // Change parameters for looping particles
   ChangeLooperParameters( G4Electron::Definition() );
 }
 
-void RunAction::ChangeLooperParameters(const G4ParticleDefinition* particleDef )
+void RunAction::ChangeLooperParameters(const G4ParticleDefinition* particleDef)
 {
-  if( particleDef == nullptr )
+  if(particleDef == nullptr)
     particleDef = G4Electron::Definition();
   auto transportPair= findTransportation(particleDef);
   auto transport = transportPair.first;
@@ -131,9 +128,6 @@ void RunAction::ChangeLooperParameters(const G4ParticleDefinition* particleDef )
 
 void RunAction::EndOfRunAction(const G4Run*)
 {
-  // Lock scope to prevent race condition
-  G4AutoLock lock(&aMutex);
-
   // Get thread ID to see if we are main thread or not
   int threadID = G4Threading::G4GetThreadId();
 
@@ -155,14 +149,14 @@ void RunAction::EndOfRunAction(const G4Run*)
   {
     std::string threadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadFileToMerge) + ".csv"; // Thread-specific filename
 
-    // Read in CSV from this thread
+    // Read in energy deposition from this thread via csv
     io::CSVReader<2> in(threadFilename);
     in.read_header(io::ignore_extra_column, "altitude_km", "energy_deposition_kev");
     int altitudeAddress; double energy_deposition;
 
     // For each row in the file, add energy deposition to main histogram
     while(in.read_row(altitudeAddress, energy_deposition)){ 
-      mainEnergyDepositionHistogram->AddCountToBin(altitudeAddress, energy_deposition); // TODO isn't working in for loop -- why?
+      mainEnergyDepositionHistogram->AddCountToBin(altitudeAddress, energy_deposition);
     }
     // Delete this thread-specific file
     std::remove(threadFilename.c_str());
@@ -171,7 +165,6 @@ void RunAction::EndOfRunAction(const G4Run*)
   mainEnergyDepositionHistogram->WriteHistogramToFile(fEnergyDepositionFileName);
   G4cout << "Done" << G4endl;
 }
-
 
 std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransportation(const G4ParticleDefinition* particleDef, bool reportError)
 {
@@ -183,7 +176,7 @@ std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransporta
   partTransport = partPM->GetProcess("CoupledTransportation");
   auto coupledTransport = dynamic_cast<G4CoupledTransportation*>(partTransport);
 
-  if( reportError && !transport && !coupledTransport )
+  if(reportError && !transport && !coupledTransport)
   {
     G4cerr << "Unable to find Transportation process for particle type "
            << particleDef->GetParticleName()

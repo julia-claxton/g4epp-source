@@ -26,7 +26,7 @@
 // $Id: PrimaryGeneratorAction.cc 94307 2015-11-11 13:42:46Z gcosmo $
 //
 /// \file PrimaryGeneratorAction.cc
-/// \brief Implementation of the PrimaryGeneratorAction class
+/// \brief Creates particles that will be propagated in the simulation
 
 #include "PrimaryGeneratorAction.hh"
 
@@ -49,23 +49,14 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),
   fParticleGun(0),
   fPrimaryMessenger(0),
-  //fEnergyDistType(0),
-  //fPitchAngleDistType(0),
-  fInitialEnergy(100.),
-  fMaxPitchAngle(40.),
-  fInitialParticleAlt(500.),
+  fBeamEnergy(100.),
+  fBeamPitchAngle(40.),
+  fInitialParticleAlt(450.0),
   fPI(3.14159265359),
   fRad2Deg(180. / 3.14159265359),
-  fSourceType(0)
+  fSourceType("e-")
 {
-  fParticleGun  = new G4ParticleGun();
-  
   fPrimaryMessenger = new PrimaryGeneratorMessenger(this);
-  
-  G4ParticleDefinition* electronParticle = G4ParticleTable::GetParticleTable()->FindParticle("e-"); // Electron = "e-", proton = "proton", gamma = "gamma"
-
-  // Selects electron for particle type
-  fParticleGun->SetParticleDefinition(electronParticle);
 }
 
 
@@ -75,11 +66,19 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
   delete fPrimaryMessenger;
 }
 
-
-void PrimaryGeneratorAction::GenerateElectrons(ParticleSample* r)
+void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-  // Generates particles to propagate in simulation
-
+  // Select input particle type
+  fParticleGun  = new G4ParticleGun();
+  G4ParticleDefinition* inputParticle = G4ParticleTable::GetParticleTable()->FindParticle(fSourceType); // Electron = "e-", proton = "proton", photon = "gamma"
+  fParticleGun->SetParticleDefinition(inputParticle);
+  
+  // Struct to store particle initial properties: 
+  // position           - (x, y, z) [km]
+  // momentum direction - (px, py, pz) []
+  // energy 		- E [keV]
+  ParticleSample* r = new ParticleSample();
+ 
   // Initial position random variables
   // Starts the particle position on a random uniform sampling of a circular area
   G4double theta = G4UniformRand() * 2. * 3.1415926; // u ~ Unif[0, 2 pi)
@@ -88,12 +87,11 @@ void PrimaryGeneratorAction::GenerateElectrons(ParticleSample* r)
 
   r->xPos = diskRadius * std::sqrt(radialPosition) * std::cos(theta);
   r->yPos = diskRadius * std::sqrt(radialPosition) * std::sin(theta);
-  r->zPos = (fInitialParticleAlt - 500)*km; // Subtraction due to coordinate axis location in middle of world volume
+  r->zPos = (fInitialParticleAlt - 500.0)*km; // Subtraction due to coordinate axis location in middle of world volume
 
   // Particle velocity random variables. Starts electrons with gyromotion about field line
-  G4double maxPitchAngle = fMaxPitchAngle * 3.1415926 / 180.;   // rad
+  G4double pitchAngle = fBeamPitchAngle * fPI / 180.0; // Convert degrees to radians
   G4double gyroPhase  = G4UniformRand() * 2. * 3.1415926;
-  G4double pitchAngle = maxPitchAngle;
 
   // Initial momentum direction of particles
   r->xDir = std::sin(pitchAngle)*std::cos(gyroPhase);
@@ -101,56 +99,18 @@ void PrimaryGeneratorAction::GenerateElectrons(ParticleSample* r)
   r->zDir = -std::cos(pitchAngle);
 
   // Need to rotate into inclined B-field frame since B-field is inclined from the world z axis.
-  // Poker Flats: 65.77 geomagnetic latitude --> 77.318 deg magnetic tilt angle => we want to tilt our coordinate system 12.682 deg in the z-y plane
-  G4double tilt_angle = 12.682 * fPI / 180.; // rad
+  // Poker Flats: 65.77 geomagnetic latitude has 77.318 deg magnetic tilt angle => we want to 
+  // tilt our coordinate system 12.682 deg in the z-y plane.
+  G4double tilt_angle = 12.682 * fPI / 180.0; // Convert degrees to radians
   r->yDir = std::cos(tilt_angle) * r->yDir - std::sin(tilt_angle) * r->zDir;
   r->zDir = std::sin(tilt_angle) * r->yDir + std::cos(tilt_angle) * r->zDir;
 
   // Set energy
-  r->energy = fInitialEnergy * keV;
-}
+  r->energy = fBeamEnergy * keV;
 
-void PrimaryGeneratorAction::GenerateSolarSpectra(ParticleSample* r)
-{
-
-}
-
-void PrimaryGeneratorAction::GenerateCXB(ParticleSample* r)
-{
-
-}
-
-void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
-{
-  // Struct to store particle initial properties: 
-  // position           - (x, y, z) [km]
-  // momentum direction - (px, py, pz) []
-  // energy 		- E [keV]
-  ParticleSample* r = new ParticleSample();
- 
-  // Generator method to fill ParticleSample struct
-  switch(fSourceType)
-  {
-    case(0):
-      GenerateElectrons(r);
-      break;
- 
-    case(1):
-      GenerateSolarSpectra(r);
-      break;
-    
-    case(2):
-      GenerateCXB(r);
-      break;
-    
-    default:
-      throw std::invalid_argument("Enter a valid source type");
-  }
-
+  // Communicate to particle gun
   fParticleGun->SetParticlePosition(G4ThreeVector(r->xPos, r->yPos, r->zPos)); 
-  
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(r->xDir, r->yDir, r->zDir));
-  
   fParticleGun->SetParticleEnergy(r->energy);
   
   // Geant method to create initial particle with the above properties 

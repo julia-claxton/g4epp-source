@@ -50,11 +50,9 @@ class SteppingAction : public G4UserSteppingAction
 {
   public:
     SteppingAction(EventAction* eventAction, RunAction* RuAct);
-
     virtual ~SteppingAction();
 
     void SetBackscatterFilename(G4String name){fBackscatterFilename = name;};
-
     void LogEnergy(G4int, G4double);    
     
     // method from the base class

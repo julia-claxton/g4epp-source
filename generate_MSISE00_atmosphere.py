@@ -101,7 +101,7 @@ if len(sys.argv) > 1:
                                        g_lat_lon[1]))
     plt.show();     
 
-# Write order that I defined in Geant DetectorConstruction
+# Write order that I defined in src/DetectorConstruction.cc
 write_order = ['alt_km','O','N2','O2','Total','Tn','He','Ar','H','N']
 mass_mult   = [1, mOxygen, mNitrogen2, mOxygen2, 1, 1, mHelium, mArgon, mHydrogen, mNitrogen];
 

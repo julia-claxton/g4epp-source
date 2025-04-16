@@ -27,8 +27,7 @@ EarthDipoleField::~EarthDipoleField()
 {}
 
 
-void EarthDipoleField::GetFieldValue(const G4double Point[4],
-		                             G4double *Bfield) const
+void EarthDipoleField::GetFieldValue(const G4double Point[4],G4double *Bfield) const
 {
   // Point is a spacetime 4-vector:
   // Point[0..3] ~ (x, y, z, t)
@@ -53,9 +52,6 @@ void EarthDipoleField::GetFieldValue(const G4double Point[4],
   Bfield[3] = 0; // Ex
   Bfield[4] = 0; // Ey
   Bfield[5] = 0; // Ez
-
-  // Debugging print statement
-  //std::cout << "Bz = " << (Bfield[2]/tesla)*1e9 << " nT" << std::endl;
 }
 
 

@@ -1,20 +1,29 @@
-/control/alias G4EPP_BUILD_DIR /Users/luna/Documents/Work/Research/geant4/G4EPP-build # Do not include a slash at the end
+# ==================================================
+# USER-EDITABLE PARAMETERS
+# ==================================================
+# Format for setting variables is:
+# /control/alias variable_name variable_value
 
-/control/alias INITIAL_ALTITUDE_KM 450.0 # Starting altitude of particles in the simulation
+/control/alias G4EPP_BUILD_DIR /Users/luna/Documents/Work/Research/geant4/G4EPP-build 
+    # Directory that G4EPP was built in. Houses the executable, results folder, and build files.
+    # Do not include a slash at the end or else it won't interpret correctly.
+
+/control/alias INITIAL_ALTITUDE_KM 450.0 
+    # Starting altitude of particles in the simulation. Units: km
+
 /control/alias NUMBER_OF_PARTICLES 100
+    # Number of particles to input to the simulation
 
-
-# TODO allow user to change -- probably want them to be command line arguments
-# fWarningEnergy # Particles below this energy are killed after 1 step. Value arbitrary 
-# fImportantEnergy # Particles above this energy are killed after fNumberOfTrials if they are looping. Value arbitrary 
-# fNumberOfTrials # Number of trials before a looping 'important' particle is killed?. Value arbitrary. Set very high to avoid losing particles
-# particle type, e- p+ gamma
+# TODO allow user to change:
 # collection altitude
+# fGeomagLatitude? this changes tilt angle so maybe not
 
+# ==================================================
+# DO NOT EDIT BELOW THIS POINT WITHOUT GOOD REASON!
+# ==================================================
+/control/echo Executing Run: {NUMBER_OF_PARTICLES} {BEAM_PARTICLE_LONGNAME}s at {BEAM_ENERGY_KEV} keV / {BEAM_PITCH_ANGLE_DEG}º
 
-/control/echo Executing Run: {BEAM_ENERGY_KEV} keV, {BEAM_PITCH_ANGLE}º...
-
-# ??????
+# Not sure what these do. TODO need to talk to Grant. Were commented out in the original build as well
 # Set low energy EM processes, including fluorescence
 #/process/em/fluo true
 #/process/em/auger false
@@ -23,9 +32,10 @@
 #/process/em/deexcitationIgnoreCut false
 #/cuts/setMaxCutEnergy 50 eV
 
-# Set file name for atmosphere table
+# Set filename for atmosphere table
 /dataCollection/setAtmosFileName MSISE00_atmosphere.csv 
 
+# Turn off verbosity
 /control/verbose 0
 /run/verbose 0
 /event/verbose 0
@@ -34,31 +44,27 @@
 /geometry/navigator/verbose 0
 /process/had/verbose 0
 
+# Initialize run
 /run/initialize
 
-/field/setStepperType 10 # 10 - RungeKutta w/ PrinceDormand method, 7-8
-
-# 0 - electrons
-# 1 - solar X-ray spectrum
-# 2 - CXB (Cosmic X-ray Background)
-/energy/setSourceType 0
+# Set the integrator. Integrator options live in /src/F03FieldSetup.cc
+/field/setStepperType 10 # 10 = RungeKutta w/ PrinceDormand method, order 7-8
 
 # Bremsstrahlung splitting
 /process/em/setSecBiasing eBrem world 100 100 MeV
 
 # Set result filepaths
-# DO /NOT/ CHANGE THESE OR ELSE BAD THINGS WILL HAPPEN!!!
 /control/alias RESULTS_DIR {G4EPP_BUILD_DIR}/results
-/control/alias BEAM_PARAMETERS {BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE}deg_{NUMBER_OF_PARTICLES}electrons
+/control/alias BEAM_PARAMETERS {BEAM_PARTICLE_LONGNAME}_input_{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE_DEG}deg_{NUMBER_OF_PARTICLES}particles
 
 /dataCollection/setEnergyDepositionFileName {RESULTS_DIR}/energy_deposition_{BEAM_PARAMETERS}.csv
 /dataCollection/setBackscatterFilename {RESULTS_DIR}/backscatter_{BEAM_PARAMETERS}.csv
 
 # Set beam parameters
-/energy/setFoldingEnergy {BEAM_ENERGY_KEV} # [keV]
-/energy/setMaximumPitchAngle {BEAM_PITCH_ANGLE}  # [deg]
-/energy/particleStartingAltitude {INITIAL_ALTITUDE_KM}
+/beamParameters/setBeamEnergy {BEAM_ENERGY_KEV} # [keV]
+/beamParameters/setBeamPitchAngle {BEAM_PITCH_ANGLE_DEG} # [deg]
+/beamParameters/setParticleStartingAltitude {INITIAL_ALTITUDE_KM} # km
+/beamParameters/setBeamParticle {BEAM_PARTICLE}
 
 # Execute run
-/control/echo Executing Run: {BEAM_ENERGY_KEV} keV, {BEAM_PITCH_ANGLE}º...
 /run/beamOn {NUMBER_OF_PARTICLES}

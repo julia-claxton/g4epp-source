@@ -1,5 +1,7 @@
 using Statistics, LinearAlgebra
 
+input_particle = "e-"       # e- = electrons, proton = protons, gamma = photons
+
 energy_kev_min = 10         # Minimum beam energy, keV
 energy_kev_max = 10_000     # Maximum beam energy, keV
 energy_nbeams = 10          # Number of log-spaced beams to place between minimum and maximum energy
@@ -20,5 +22,5 @@ pitch_angles_to_simulate = round.(pitch_angles_to_simulate)
 
 # Create shell script
 file = open("$(@__DIR__)/RUN_ALL.sh", "w")
-[println(file, "./G4EPP $(E) $(α)") for E in energies_to_simulate, α in pitch_angles_to_simulate]
+[println(file, "./G4EPP $(input_particle) $(E) $(α)") for E in energies_to_simulate, α in pitch_angles_to_simulate]
 close(file)
