@@ -160,7 +160,6 @@ void RunAction::EndOfRunAction(const G4Run*)
     }
     // Delete this thread-specific file
     std::remove(threadFilename.c_str());
-    G4cout << "Removed " << threadFilename;
   }
   // Write main energy histogram to file
   mainEnergyDepositionHistogram->WriteHistogramToFile(fEnergyDepositionFileName);
