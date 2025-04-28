@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#SBATCH --job-name G4EPP
+#SBATCH --nodes 1
+#SBATCH --ntasks-per-node 40
+#SBATCH --time 24:00:00
+#SBATCH --output G4EPP_LOG_%j.txt
+#SBATCH --qos=blanca-lair
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=jucl6426@colorado.edu
+
+# Move to directory with executable
+cd /scratch/alpine/jucl6426/g4epp-build
+
+# Execute runs
+./G4EPP e- 10000 67
+
+# Move results out of scratch
+rm -r /projects/jucl6426/G4EPP_OUTPUT # Will fail if doesn't exist
+cp -r /scratch/alpine/jucl6426/g4epp-build/results /projects/jucl6426/G4EPP_results
+
+# Exit
+echo "Job complete."
