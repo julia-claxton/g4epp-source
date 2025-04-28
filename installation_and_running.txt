@@ -57,6 +57,7 @@ find . -name '*.tar.gz' -exec tar -xzvf {} \; # Unpack .tar.gz archives
 ###############################################
 #
 # START FROM HERE IF BUILDING G4EPP FROM SOURCE
+# ALWAYS DO THIS BEFORE QUEUEING JOB!
 #
 ###############################################
 cd /projects/$USER
@@ -79,7 +80,8 @@ cmake -DCMAKE_INSTALL_PREFIX="/projects/$USER/geant4/install" -DGeant4_DIR="/pro
 make
 
 # Make batch script executable
-chmod +x ./supercomputing_batch.sh
+chmod +x /projects/jucl6426/g4epp-source/supercomputing_batch.sh
+chmod +x /scratch/alpine/$USER/g4epp-build/supercomputing_batch.sh 
 
 ###############################################
 #
