@@ -145,7 +145,7 @@ void RunAction::EndOfRunAction(const G4Run*)
   myHistogram* mainEnergyDepositionHistogram = new myHistogram(); // 1000 km in 1 km bins
 
   // Add energy deposition from each thread to the merged histogram
-  for(int threadFileToMerge = 0; threadFileToMerge < 8; threadFileToMerge++)
+  for(int threadFileToMerge = 0; threadFileToMerge < 40; threadFileToMerge++) // TODO hardcoded number of threads here
   {
     std::string threadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadFileToMerge) + ".csv"; // Thread-specific filename
 
@@ -160,6 +160,7 @@ void RunAction::EndOfRunAction(const G4Run*)
     }
     // Delete this thread-specific file
     std::remove(threadFilename.c_str());
+    G4cout << "Removed " << threadFilename;
   }
   // Write main energy histogram to file
   mainEnergyDepositionHistogram->WriteHistogramToFile(fEnergyDepositionFileName);
