@@ -94,6 +94,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4double gyroPhase  = G4UniformRand() * 2. * 3.1415926;
 
   // Initial momentum direction of particles
+  // TODO collection altitude higher?
   r->xDir = std::sin(pitchAngle)*std::cos(gyroPhase);
   r->yDir = std::sin(pitchAngle)*std::sin(gyroPhase);
   r->zDir = -std::cos(pitchAngle);

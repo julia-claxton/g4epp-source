@@ -109,8 +109,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 
   // ===========================
   // Backscatter Tracking
-  // =========================== 
-  // TODO set 
+  // ===========================
   // Write backscatter directly to file if detected
   if( (position.z()/km > 450.0-500.0) && (momentumDirection.z() > 0) ) // If particle is above 450 km and moving upwards. Subtract 500 because 0.0 in world coordinates = +500 km above sea level
   {
@@ -120,22 +119,22 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     // Get particle energy
     const G4double preStepEnergy =  step->GetPreStepPoint()->GetKineticEnergy();
 
-    // Write position and directional kinetic energy to file
+    // Write position, direction, and kinetic energy to file
     std::ofstream dataFile;
     dataFile.open(fBackscatterFilename, std::ios_base::app); // Open file in append mode
     dataFile 
       << particleName << ','
+      << preStepEnergy/keV << ','
+      << momentumDirection.x() << ','
+      << momentumDirection.y() << ','
+      << momentumDirection.z() << ','
       << position.x()/m << ',' 
       << position.y()/m << ','
-      << (position.z()/m) + 500000 << ',' // Shift so we are writing altitude above sea level to file rather than the world coordinates
-      << momentumDirection.x() * preStepEnergy/keV << ','
-      << momentumDirection.y() * preStepEnergy/keV << ','
-      << momentumDirection.z() * preStepEnergy/keV << '\n'; 
+      << (position.z()/m) + 500000 << '\n'; // Shift so we are writing altitude above sea level to file rather than the world coordinates
     dataFile.close();
 
     // Kill particle after data collection
     track->SetTrackStatus(fStopAndKill);
-    // G4cout << "Recorded and killed upgoing " << particleName << " at 450 km" << G4endl; // Optional status message
   }
 }
 

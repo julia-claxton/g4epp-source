@@ -88,7 +88,7 @@ void RunAction::BeginOfRunAction(const G4Run*)
     // Write header
     std::ofstream dataFile;
     dataFile.open(backscatterFilename, std::ios_base::out); // Open file in write mode to overwrite any previous results
-    dataFile << "particle_name,x_meters,y_meters,z_meters,kinetic_energy_x_keV,kinetic_energy_y_keV,kinetic_energy_z_keV\n";
+    dataFile << "particle_name,particle_energy_keV,momentum_direction_x,momentum_direction_y,momentum_direction_z,x_meters,y_meters,z_meters\n";
     dataFile.close();
   }
 

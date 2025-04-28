@@ -11,7 +11,7 @@
 /control/alias INITIAL_ALTITUDE_KM 450.0 
     # Starting altitude of particles in the simulation. Units: km
 
-/control/alias NUMBER_OF_PARTICLES 100
+/control/alias NUMBER_OF_PARTICLES 1000000 # = 1e6
     # Number of particles to input to the simulation
 
 # TODO allow user to change:
