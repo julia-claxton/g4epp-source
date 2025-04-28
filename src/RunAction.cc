@@ -85,6 +85,9 @@ void RunAction::BeginOfRunAction(const G4Run*)
     // If the format of either backscatter or energy deposition files changes, this might break. Don't change those!
     std::string backscatterFilename = std::regex_replace(fEnergyDepositionFileName, std::regex("energy_deposition"), "backscatter");
         
+    // Create file
+    std::ofstream blankFile(backscatterFilename); // Creates empty file. Does not need to be closed.
+
     // Write header
     std::ofstream dataFile;
     dataFile.open(backscatterFilename, std::ios_base::out); // Open file in write mode to overwrite any previous results
@@ -134,7 +137,11 @@ void RunAction::EndOfRunAction(const G4Run*)
   // If we are not the main thread, write energy deposition to file and exit
   if(threadID != -1)
   {
+    // Create file
     std::string threadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadID) + ".csv"; // Thread-specific filename
+    std::ofstream blankFile(threadFilename); // Creates empty file. Does not need to be closed.
+
+    // Write data
     fEnergyDepositionHistogram->WriteHistogramToFile(threadFilename);
     G4cout << "Thread " + std::to_string(threadID) + " complete" << G4endl;
     return;
@@ -142,7 +149,10 @@ void RunAction::EndOfRunAction(const G4Run*)
 
   // If we are the main thread, merge energy deposition datafiles from each thread. Main thread ends after workers are done, so this is the end of the simulation
   G4cout << "Merging thread-specific energy deposition data... ";
-  myHistogram* mainEnergyDepositionHistogram = new myHistogram(); // 1000 km in 1 km bins
+  myHistogram* mainEnergyDepositionHistogram = new myHistogram(); // Create main histogram. 1000 km in 1 km bins
+
+  // Create file
+  std::ofstream blankFile(fEnergyDepositionFileName); // Creates empty file. Does not need to be closed.
 
   // Add energy deposition from each thread to the merged histogram
   for(int threadFileToMerge = 0; threadFileToMerge < 8; threadFileToMerge++)
