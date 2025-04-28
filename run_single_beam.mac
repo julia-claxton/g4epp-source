@@ -4,7 +4,7 @@
 # Format for setting variables is:
 # /control/alias variable_name variable_value
 
-/control/alias G4EPP_BUILD_DIR /Users/luna/Documents/Work/Research/geant4/G4EPP-build 
+/control/alias G4EPP_BUILD_DIR /scratch/alpine/jucl6426/g4epp-build 
     # Directory that G4EPP was built in. Houses the executable, results folder, and build files.
     # Do not include a slash at the end or else it won't interpret correctly.
 
