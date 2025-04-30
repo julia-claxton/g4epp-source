@@ -66,7 +66,7 @@ cd /projects/$USER
 git clone https://github.com/julia-claxton/g4epp-source.git
 
 # If source already exists, pull latest version:
-cd g4epp-source
+cd /projects/$USER/g4epp-source
 git pull
 
 # Create/reset build directory

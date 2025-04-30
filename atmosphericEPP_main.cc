@@ -176,7 +176,7 @@ int main(int argc,char** argv)
   }
   else
   {
-    std::cout << "Incorrect number of command line arguments provided!" << std::endl;
+    std::cout << "Incorrect number of command line arguments provided (" << argc << " given)" std::endl;
     throw;
   }
 
