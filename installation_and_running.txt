@@ -60,10 +60,10 @@ find . -name '*.tar.gz' -exec rm {} \;      # OPTIONAL: Remove .tar.gz archives
 # ALWAYS DO THIS BEFORE QUEUEING JOB!
 #
 ###############################################
-cd /projects/$USER
 
 # Download source code if source does not exist:
-git clone https://github.com/julia-claxton/g4epp-source.git
+# cd /projects/$USER
+# git clone https://github.com/julia-claxton/g4epp-source.git
 
 # If source already exists, pull latest version:
 cd /projects/$USER/g4epp-source
@@ -94,11 +94,11 @@ module load slurm/blanca
 squeue -q blanca-lair
 
 # Add job to queue
-cd /scratch/alpine/$USER/g4epp
+cd /scratch/alpine/$USER/g4epp-build
 sbatch supercomputing_batch.sh
 
 # Check queue after
 squeue -q blanca-lair
 
 # To see all your jobs:
-# squeue -q $USER
+squeue --format="%.18i %.9P %.30j %.8u %.8T %.10M %.9l %.6D %R" --me

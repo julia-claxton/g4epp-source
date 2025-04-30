@@ -2,7 +2,7 @@
 
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
-#SBATCH --ntasks-per-node 40
+#SBATCH --ntasks-per-node 128
 #SBATCH --time 24:00:00
 #SBATCH --output /projects/jucl6426/G4EPP_results/G4EPP_LOG_%j.txt
 #SBATCH --qos=blanca-lair
@@ -10,7 +10,7 @@
 #SBATCH --mail-user=jucl6426@colorado.edu
 
 # Remove previous results
-rm /scratch/alpine/jucl6426/g4epp-build/results/*
+rm -f /scratch/alpine/jucl6426/g4epp-build/results/*
 
 # Execute runs
 ./G4EPP e- 10000 67

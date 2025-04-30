@@ -16,7 +16,7 @@
 /control/alias INITIAL_ALTITUDE_KM 450.0 
     # Starting altitude of particles in the simulation. Units: km
 
-/run/numberOfThreads 40
+/run/numberOfThreads 128
     # Number of parallel worker threads to use during simulation
 
 # TODO allow user to change:
