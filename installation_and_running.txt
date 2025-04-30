@@ -67,6 +67,7 @@ find . -name '*.tar.gz' -exec rm {} \;      # OPTIONAL: Remove .tar.gz archives
 
 # If source already exists, pull latest version:
 cd /projects/$USER/g4epp-source
+git reset --hard origin/main
 git pull
 
 # Create/reset build directory
