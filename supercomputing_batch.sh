@@ -10,6 +10,10 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jucl6426@colorado.edu
 
+# https://stackoverflow.com/questions/65603381/slurm-nodes-tasks-cores-and-cpus
+# https://slurm.schedmd.com/sbatch.html
+
+
 # Remove previous results
 rm -f /scratch/alpine/jucl6426/g4epp-build/results/*
 
