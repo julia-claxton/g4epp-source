@@ -142,10 +142,14 @@ int main(int argc,char** argv)
     std::cout << "Running in macro mode with " + command_to_run << std::endl;
     std::cout << "=====================================================================" << std::endl;
   }
-  // If 3 arguments are provided, interpret them as a particle, energy, and pitch angle to run
+  // If 4 arguments are provided, interpret them as a number of particles, particle type, energy, and pitch angle to run
   else if(argc == 4){
+    // Set input particle number
+    G4String nParticles = argv[1];
+    UImanager->ApplyCommand("/control/alias NUMBER_OF_PARTICLES " + nParticles);
+
     // Set particle definition variable (uses Geant4's particle names: https://fismed.ciemat.es/GAMOS/GAMOS_doc/GAMOS.5.1.0/x11519.html
-    G4String particle = argv[1];
+    G4String particle = argv[2];
     UImanager->ApplyCommand("/control/alias BEAM_PARTICLE " + particle); 
     
     // Set particle longname - what the result file will call the input particle. This is just for clarity to 
@@ -157,15 +161,17 @@ int main(int argc,char** argv)
     else                         {longname = particle;}
     UImanager->ApplyCommand("/control/alias BEAM_PARTICLE_LONGNAME " + longname);
 
-    // Set energy and pitch angle of beam
-    G4String energy = argv[2];
-    G4String pitch_angle = argv[3];
+    // Set beam energy
+    G4String energy = argv[3];
     UImanager->ApplyCommand("/control/alias BEAM_ENERGY_KEV " + energy);
+
+    // Set beam pitch angle
+    G4String pitch_angle = argv[4];
     UImanager->ApplyCommand("/control/alias BEAM_PITCH_ANGLE_DEG " + pitch_angle);
 
-    std::cout << "=====================================================================" << std::endl;
-    std::cout << "Running in single beam mode at " + energy + " keV, " + pitch_angle + " deg" << std::endl;
-    std::cout << "=====================================================================" << std::endl;
+    std::cout << "==================================================================================" << std::endl;
+    std::cout << "Running in single beam mode with " << nParticles << " " << longname << "s at " << energy << " keV, " << pitch_angle << " deg" << std::endl;
+    std::cout << "==================================================================================" << std::endl;
     command_to_run = "run_single_beam.mac";
   }
   else

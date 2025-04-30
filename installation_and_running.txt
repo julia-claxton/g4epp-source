@@ -63,7 +63,7 @@ find . -name '*.tar.gz' -exec rm {} \;      # OPTIONAL: Remove .tar.gz archives
 cd /projects/$USER
 
 # Download source code if source does not exist:
-# git clone https://github.com/julia-claxton/g4epp-source.git
+git clone https://github.com/julia-claxton/g4epp-source.git
 
 # If source already exists, pull latest version:
 cd g4epp-source
@@ -79,7 +79,7 @@ cd g4epp-build
 cmake -DCMAKE_INSTALL_PREFIX="/projects/$USER/geant4/install" -DGeant4_DIR="/projects/$USER/geant4/install/lib64" "/projects/$USER/g4epp-source"
 make
 
-# Make batch script executable
+# Make batch scripts executable
 chmod +x /projects/jucl6426/g4epp-source/supercomputing_batch.sh
 chmod +x /scratch/alpine/$USER/g4epp-build/supercomputing_batch.sh 
 
