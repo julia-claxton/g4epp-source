@@ -2,8 +2,8 @@
 
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
-#SBATCH --threads-per-core 128
-#SBATCH --ntasks-per-node 1
+#SBATCH --threads-per-core 1
+#SBATCH --ntasks-per-node 128
 #SBATCH --time 00:5:00
 #SBATCH --output /projects/jucl6426/G4EPP_results/G4EPP_LOG_%j.txt
 #SBATCH --qos=preemptable
