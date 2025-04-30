@@ -52,7 +52,7 @@ wget https://cern.ch/geant4-data/datasets/G4ENSDFSTATE.3.0.tar.gz
 wget https://cern.ch/geant4-data/datasets/G4PARTICLEXS.4.1.tar.gz
 
 find . -name '*.tar.gz' -exec tar -xzvf {} \; # Unpack .tar.gz archives
-# find . -name '*.tar.gz' -exec rm {} \;      # OPTIONAL: Remove .tar.gz archives
+find . -name '*.tar.gz' -exec rm {} \;      # OPTIONAL: Remove .tar.gz archives
 
 ###############################################
 #
@@ -99,3 +99,6 @@ sbatch supercomputing_batch.sh
 
 # Check queue after
 squeue -q blanca-lair
+
+# To see all your jobs:
+# squeue -q $USER

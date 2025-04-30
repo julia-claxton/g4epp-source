@@ -14,6 +14,9 @@
 /control/alias NUMBER_OF_PARTICLES 1000000 # = 1e6
     # Number of particles to input to the simulation
 
+/run/numberOfThreads 40
+    # This is currently hardcoded into ./atmosphericEPP_main.cc as well. TODO make automatic
+
 # TODO allow user to change:
 # collection altitude
 # fGeomagLatitude? this changes tilt angle so maybe not

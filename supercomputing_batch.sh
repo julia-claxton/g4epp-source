@@ -4,7 +4,7 @@
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
 #SBATCH --time 24:00:00
-#SBATCH --output G4EPP_LOG_%j.txt
+#SBATCH --output /projects/jucl6426/G4EPP_results/G4EPP_LOG_%j.txt
 #SBATCH --qos=blanca-lair
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jucl6426@colorado.edu

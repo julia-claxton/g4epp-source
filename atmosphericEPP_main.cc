@@ -33,7 +33,7 @@ make # Build executable
 chmod +x ./RUN_ALL.sh # Make the runall script executable by anyone
 
 # To run the simulation
-./G4EPP <BEAM ENERGY IN KEV> <BEAM PITCH ANGLE IN DEG>
+./G4EPP <PARTICLE NAME> <BEAM ENERGY IN KEV> <BEAM PITCH ANGLE IN DEG>
 # or
 ./RUN_ALL.sh
 */
@@ -101,8 +101,8 @@ int main(int argc,char** argv)
   #ifdef G4MULTITHREADED
     // Multithreaded mode
     G4MTRunManager* runManager = new G4MTRunManager;
-    int n_threads = 40; // Change this number to the desired number of threads
-    runManager->SetNumberOfThreads(n_threads);
+    //int n_threads = 40; // Change this number to the desired number of threads
+    //runManager->SetNumberOfThreads(n_threads);
     G4cout << "Using " << runManager->GetNumberOfThreads() << " threads." << G4endl;
   #else
     // Singlethreaded mode
