@@ -1,0 +1,24 @@
+# ==================================================
+# USER-EDITABLE PARAMETERS
+# Edit the values in this file to tweak the
+# simulation to your desired parameters.
+#
+# The format for setting variables is:
+# /control/alias variable_name variable_value
+# ==================================================
+
+/control/alias G4EPP_BUILD_DIR /scratch/alpine/jucl6426/g4epp-build 
+    # Directory that you will build G4EPP in. Houses the executable, results folder, and buildfiles.
+    # Do not include a slash at the end or else it won't interpret correctly.
+    # There is no platform-independent way to incorporate this into the code, unfortunately,
+    # so we have to type it in manually.
+
+/control/alias INITIAL_ALTITUDE_KM 450.0 
+    # Starting altitude of particles in the simulation. Units: km
+
+/run/numberOfThreads 40
+    # Number of parallel worker threads to use during simulation
+
+# TODO allow user to change:
+    # collection altitude
+    # fGeomagLatitude? this changes tilt angle so maybe not

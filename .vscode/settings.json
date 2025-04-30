@@ -49,6 +49,22 @@
         "deque": "cpp",
         "stack": "cpp",
         "regex": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "__errc": "cpp",
+        "__mutex_base": "cpp",
+        "__node_handle": "cpp",
+        "cctype": "cpp",
+        "clocale": "cpp",
+        "condition_variable": "cpp",
+        "cstdarg": "cpp",
+        "cwctype": "cpp",
+        "iomanip": "cpp",
+        "locale": "cpp",
+        "mutex": "cpp",
+        "optional": "cpp",
+        "streambuf": "cpp",
+        "system_error": "cpp",
+        "thread": "cpp",
+        "filesystem": "cpp"
     }
 }

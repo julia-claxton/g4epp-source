@@ -50,6 +50,7 @@
 
 #include <fstream>
 #include <regex>
+#include <filesystem>
 #include "../include/csv.h" // For quickly parsing .csv files. Author credit in file.
 
 RunAction::RunAction():
@@ -80,6 +81,15 @@ void RunAction::BeginOfRunAction(const G4Run*)
   int threadID = G4Threading::G4GetThreadId();
   if(threadID == -1)
   {
+    // First, make sure that the build directory set by the user is correct
+    std::filesystem::path resultsPath = fEnergyDepositionFileName.c_str();
+    std::filesystem::path buildDirectory = resultsPath.parent_path().parent_path();
+    if(std::filesystem::is_directory(buildDirectory) == false)
+    {
+      G4cerr << G4endl << "*** ERROR: User-specified build directory " << buildDirectory << " does not exist. This path is user-specified in set_simulation_parameters.mac. Check that G4EPP_BUILD_DIR in set_simulation_parameters.mac matches your build directory and does not have a slash at the end." << G4endl << G4endl;
+      throw;
+    }
+
     // I am having a lot of trouble getting RunAction and SteppingAction to both see/own the backscatter filename, so 
     // we will just reconstruct the backscatter filename from the energy deposition filename which RunAction owns.
     // If the format of either backscatter or energy deposition files changes, this might break. Don't change those!
@@ -90,6 +100,11 @@ void RunAction::BeginOfRunAction(const G4Run*)
     dataFile.open(backscatterFilename, std::ios_base::out); // Open file in write mode to overwrite any previous results
     dataFile << "particle_name,particle_energy_keV,momentum_direction_x,momentum_direction_y,momentum_direction_z,x_meters,y_meters,z_meters\n";
     dataFile.close();
+  }
+  // Otherwise, print startup message
+  else
+  {
+    G4cout << "STARTING: Thread " << threadID << G4endl;
   }
 
   // Change parameters for looping particles
@@ -136,7 +151,7 @@ void RunAction::EndOfRunAction(const G4Run*)
   {
     std::string threadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadID) + ".csv"; // Thread-specific filename
     fEnergyDepositionHistogram->WriteHistogramToFile(threadFilename);
-    G4cout << "Thread " + std::to_string(threadID) + " complete" << G4endl;
+    G4cout << "FINISHED: Thread " << threadID << G4endl;
     return;
   }
 
@@ -145,7 +160,8 @@ void RunAction::EndOfRunAction(const G4Run*)
   myHistogram* mainEnergyDepositionHistogram = new myHistogram(); // 1000 km in 1 km bins
 
   // Add energy deposition from each thread to the merged histogram
-  for(int threadFileToMerge = 0; threadFileToMerge < 40; threadFileToMerge++) // TODO hardcoded number of threads here
+  int nThreads = G4Threading::GetNumberOfRunningWorkerThreads();
+  for(int threadFileToMerge = 0; threadFileToMerge < nThreads; threadFileToMerge++) // TODO hardcoded number of threads here
   {
     std::string threadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadFileToMerge) + ".csv"; // Thread-specific filename
 

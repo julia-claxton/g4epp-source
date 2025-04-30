@@ -1,5 +1,7 @@
 using Statistics, LinearAlgebra
 
+number_of_particles = 1000  # Number of particles to input
+
 input_particle = "e-"       # e- = electrons, proton = protons, gamma = photons
 
 energy_kev_min = 10         # Minimum beam energy, keV
@@ -22,5 +24,5 @@ pitch_angles_to_simulate = round.(pitch_angles_to_simulate)
 
 # Create shell script
 file = open("$(@__DIR__)/RUN_ALL.sh", "w")
-[println(file, "./G4EPP $(input_particle) $(E) $(α)") for E in energies_to_simulate, α in pitch_angles_to_simulate]
+[println(file, "./G4EPP $(number_of_particles) $(input_particle) $(E) $(α)") for E in energies_to_simulate, α in pitch_angles_to_simulate]
 close(file)

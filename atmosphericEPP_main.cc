@@ -46,13 +46,9 @@ chmod +x ./RUN_ALL.sh # Make the runall script executable by anyone
 #include "ActionInitialization.hh"
 #include "RunAction.hh"
 
-// Multithreading support
-#ifdef G4MULTITHREADED
-  #include "G4MTRunManager.hh"
-  #include "G4Threading.hh"
-#else
-  #include "G4RunManager.hh"
-#endif
+// Multithreaded run manager
+#include "G4MTRunManager.hh"
+#include "G4Threading.hh"
 
 // Physics lists
 #include "G4UImanager.hh"
@@ -79,6 +75,14 @@ chmod +x ./RUN_ALL.sh # Make the runall script executable by anyone
 
 int main(int argc,char** argv)
 {
+  // We need 4 arguments provided: a number of particles, particle type, energy, and pitch angle to run.
+  // Error out if we don't get those
+  if(argc != 5)
+  {
+    std::cout << "Incorrect number of command line arguments provided. " << argc-1 << " given, 4 required. Format: ./G4EPP <number of particles> <particle name> <particle energy> <particle pitch angle>" << std::endl;
+    throw;
+  }
+
   // Start simulation timer
   auto t_start = std::chrono::high_resolution_clock::now();
 
@@ -97,17 +101,8 @@ int main(int argc,char** argv)
   seeds[1] = (long) (systime*G4UniformRand());
   G4Random::setTheSeeds(seeds);
 
-  // Construct the run manager
-  #ifdef G4MULTITHREADED
-    // Multithreaded mode
-    G4MTRunManager* runManager = new G4MTRunManager;
-    //int n_threads = 40; // Change this number to the desired number of threads
-    //runManager->SetNumberOfThreads(n_threads);
-    G4cout << "Using " << runManager->GetNumberOfThreads() << " threads." << G4endl;
-  #else
-    // Singlethreaded mode
-    G4RunManager* runManager = new G4RunManager;
-  #endif
+  // Construct the run manager in multithreaded mode
+  G4MTRunManager* runManager = new G4MTRunManager;
 
   // Physics list
   G4PhysListFactory factory;
@@ -131,61 +126,54 @@ int main(int argc,char** argv)
   // Get the pointer to the user interface manager
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
-  // Decide what to execute based on command line input
-  G4String execute = "/control/execute ";
-  G4String command_to_run;
+  // Set the simulation parameters
+  UImanager->ApplyCommand("/control/execute set_simulation_parameters.mac");
   
-  // If one argument is provided, interpret it as a macro to run
-  if(argc == 2){
-    command_to_run = argv[1];
-    std::cout << "=====================================================================" << std::endl;
-    std::cout << "Running in macro mode with " + command_to_run << std::endl;
-    std::cout << "=====================================================================" << std::endl;
-  }
-  // If 4 arguments are provided, interpret them as a number of particles, particle type, energy, and pitch angle to run
-  else if(argc == 4){
-    // Set input particle number
-    G4String nParticles = argv[1];
-    UImanager->ApplyCommand("/control/alias NUMBER_OF_PARTICLES " + nParticles);
+  // Set input particle number
+  G4String nParticles = argv[1];
+  UImanager->ApplyCommand("/control/alias NUMBER_OF_PARTICLES " + nParticles);
 
-    // Set particle definition variable (uses Geant4's particle names: https://fismed.ciemat.es/GAMOS/GAMOS_doc/GAMOS.5.1.0/x11519.html
-    G4String particle = argv[2];
-    UImanager->ApplyCommand("/control/alias BEAM_PARTICLE " + particle); 
-    
-    // Set particle longname - what the result file will call the input particle. This is just for clarity to 
-    // the end user on what each result file represents, as I think "photon" and "electron" are clearer than
-    // G4's internal names "gamma" and "e-".
-    G4String longname;
-    if(particle == "e-")         {longname = "electron";}
-    else if(particle == "gamma") {longname = "photon";}
-    else                         {longname = particle;}
-    UImanager->ApplyCommand("/control/alias BEAM_PARTICLE_LONGNAME " + longname);
+  // Set particle definition variable (uses Geant4's particle names: https://fismed.ciemat.es/GAMOS/GAMOS_doc/GAMOS.5.1.0/x11519.html
+  G4String particle = argv[2];
+  UImanager->ApplyCommand("/control/alias BEAM_PARTICLE " + particle); 
+  
+  // Set particle longname - what the result file will call the input particle. This is just for clarity to 
+  // the end user on what each result file represents, as I think "photon" and "electron" are clearer than
+  // G4's internal names "gamma" and "e-".
+  G4String longname;
+  if(particle == "e-")         {longname = "electron";}
+  else if(particle == "gamma") {longname = "photon";}
+  else                         {longname = particle;}
+  UImanager->ApplyCommand("/control/alias BEAM_PARTICLE_LONGNAME " + longname);
 
-    // Set beam energy
-    G4String energy = argv[3];
-    UImanager->ApplyCommand("/control/alias BEAM_ENERGY_KEV " + energy);
+  // Set beam energy
+  G4String energy = argv[3];
+  UImanager->ApplyCommand("/control/alias BEAM_ENERGY_KEV " + energy);
 
-    // Set beam pitch angle
-    G4String pitch_angle = argv[4];
-    UImanager->ApplyCommand("/control/alias BEAM_PITCH_ANGLE_DEG " + pitch_angle);
+  // Set beam pitch angle
+  G4String pitch_angle = argv[4];
+  UImanager->ApplyCommand("/control/alias BEAM_PITCH_ANGLE_DEG " + pitch_angle);
 
-    std::cout << "==================================================================================" << std::endl;
-    std::cout << "Running in single beam mode with " << nParticles << " " << longname << "s at " << energy << " keV, " << pitch_angle << " deg" << std::endl;
-    std::cout << "==================================================================================" << std::endl;
-    command_to_run = "run_single_beam.mac";
-  }
-  else
-  {
-    std::cout << "Incorrect number of command line arguments provided (" << argc << " given)" << std::endl;
-    throw;
-  }
-
-  // Report current system time before starting the run
+  // Print status block
+  std::cout << "=====================================================================" << std::endl;
   std::time_t current_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-  G4cout << "Starting simulation: " << std::ctime(&current_time) << G4endl;
+  std::cout << "Starting Simulation: " << std::ctime(&current_time) << std::endl;
   
+  std::cout << "Multithreading Active" << std::endl;
+  std::cout << "    " << G4Threading::G4GetNumberOfCores() << " cores available" << std::endl;
+  std::cout << "    " << runManager->GetNumberOfThreads() << " threads active" << std::endl;
+  std::cout << std::endl;
+
+  std::cout << "Beam Parameters" << std::endl;
+  std::cout << 
+    "    Input:       " << nParticles  << " " << longname << "s " << std::endl <<
+    "    Energy:      " << energy      << " keV" << std::endl <<
+    "    Pitch Angle: " << pitch_angle << " deg" <<
+  std::endl;
+  std::cout << "=====================================================================" << std::endl << std::endl;
+
   // Execute run
-  UImanager->ApplyCommand(execute + command_to_run);
+  UImanager->ApplyCommand("/control/execute run_beam.mac");
 
   // End run
   // Free the store: user actions, physics_list and detector_description are
@@ -197,8 +185,15 @@ int main(int argc,char** argv)
   auto t_end = std::chrono::high_resolution_clock::now();
 
   // Report elapsed simulation time (realtime, not simulation time)
+  std::cout << std::endl;
+  current_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
-  std::cout << "Simulation completed in : " << elapsed_time_ms/1000.0 << " seconds" << std::endl;
+
+  std::cout << "=====================================================================" << std::endl;
+  std::cout << "Simulation Complete: " << std::ctime(&current_time);
+  std::cout << "    Backscatter and energy deposition written to ./results" << std::endl;
+  std::cout << "    Simulation completed in " << elapsed_time_ms/1000.0 << " seconds" << std::endl;
+  std::cout << "=====================================================================" << std::endl << std::endl;
 
   return 0;
 }
