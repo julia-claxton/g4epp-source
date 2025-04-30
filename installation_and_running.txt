@@ -92,14 +92,11 @@ chmod +x /scratch/alpine/$USER/g4epp-build/supercomputing_batch.sh
 module load slurm/blanca
 
 # Check queue before
-squeue -q blanca-lair
+squeue -p blanca-lair --format="%.18i %.9P %.30j %.8u %.8T %.10M %.9l %.6D %R"
 
 # Add job to queue
 cd /scratch/alpine/$USER/g4epp-build
 sbatch supercomputing_batch.sh
-
-# Check queue after
-squeue -q blanca-lair
 
 # To see all your jobs:
 squeue --format="%.18i %.9P %.30j %.8u %.8T %.10M %.9l %.6D %R" --me
