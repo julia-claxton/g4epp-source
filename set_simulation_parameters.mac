@@ -30,5 +30,4 @@
 # Number of parallel worker threads to use during simulation
     /run/numberOfThreads 128
 
-
 # TODO geomagnetic latitude
