@@ -62,13 +62,17 @@ find . -name '*.tar.gz' -exec rm {} \;      # OPTIONAL: Remove .tar.gz archives
 ###############################################
 
 # Download source code if source does not exist:
-# cd /projects/$USER
-# git clone https://github.com/julia-claxton/g4epp-source.git
-
+cd /projects/$USER
 # If source already exists, pull latest version:
-cd /projects/$USER/g4epp-source
-git reset --hard origin/main
-git pull
+if [ -d "/projects/$USER/g4epp-source" ]
+then
+    cd g4epp-source
+    git reset --hard origin/main
+    git pull
+else
+    git clone https://github.com/julia-claxton/g4epp-source.git
+    cd g4epp-source
+fi
 
 # Create/reset build directory
 cd /scratch/alpine/$USER
@@ -84,19 +88,24 @@ make
 chmod +x /projects/jucl6426/g4epp-source/supercomputing_batch.sh
 chmod +x /scratch/alpine/$USER/g4epp-build/supercomputing_batch.sh 
 
+
+
+
+
+
 ###############################################
 #
 # START FROM HERE IF QUEUING SIMULATION JOB
 #
 ###############################################
-module load slurm/blanca
 
-# Check queue before
-# squeue -p blanca-lair --format="%.18i %.15P %.30j %.10u %.10T %.13M %.13l %.8D %R"
+/projects/$USER/build_g4epp.sh
+    # Build G4EPP
 
-# Add job to queue
 cd /scratch/alpine/$USER/g4epp-build
+module load slurm/blanca
 sbatch supercomputing_batch.sh
+    # Add job to queue
 
-# Watch job
-watch -n1 squeue --format="'%.18i %.15P %.30j %.10u %.10T %.13M %.13l %.8D %R'" --me
+watchq
+    # Watch job
