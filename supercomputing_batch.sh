@@ -2,9 +2,9 @@
 
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
-#SBATCH --cpus-per-task 40
+#SBATCH --ntasks-per-node 40
 #SBATCH --time 01:00:00
-#SBATCH --output /projects/jucl6426/G4EPP_results/results_%j/log.txt
+#SBATCH --output /projects/jucl6426/G4EPP_results/results_%j/log.out
 #SBATCH --qos=blanca-lair
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jucl6426@colorado.edu
@@ -13,9 +13,9 @@
 echo "
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
-#SBATCH --cpus-per-task 40
+#SBATCH --ntasks-per-node 40
 #SBATCH --time 01:00:00
-#SBATCH --output /projects/jucl6426/G4EPP_results/results_%j/log.txt
+#SBATCH --output /projects/jucl6426/G4EPP_results/results_%j/log.out
 #SBATCH --qos=blanca-lair
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jucl6426@colorado.edu
@@ -28,7 +28,7 @@ echo "
 rm -f /scratch/alpine/jucl6426/g4epp-build/results/*
 
 # Execute runs
-./G4EPP 5000 e- 10000 67
+./G4EPP 1000 e- 10000 67
 
 # Move results out of scratch and rename to correspond to job
 mkdir /projects/jucl6426/G4EPP_results/results_$SLURM_JOB_ID
