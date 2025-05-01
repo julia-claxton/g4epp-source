@@ -113,6 +113,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // Write backscatter directly to file if detected
   // Backscatter is defined as a particle above the collection altitude and moving upwards in world coordinates
   // We subtract 500 because +500.0 km above sea level ==> z = 0.0 in world coordinates
+  /*
   if( (position.z()/km > fCollectionAltitude-500.0) && (momentumDirection.z() > 0) ) 
   {
     // Lock scope to stop threads from overwriting data in same file
@@ -138,6 +139,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     // Kill particle after data collection
     track->SetTrackStatus(fStopAndKill);
   }
+  */
 }
 
 void SteppingAction::LogEnergy(G4int histogramAddress, G4double energy)
