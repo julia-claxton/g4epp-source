@@ -19,7 +19,8 @@
 # and buildfiles. Do not include a slash at the end or else it won't interpret correctly.
 # There is no platform-independent way to incorporate this into the code so we have to 
 # type it in manually.
-    /control/alias G4EPP_BUILD_DIR /Users/luna/Documents/Work/Research/geant4/G4EPP-build # /scratch/alpine/jucl6426/g4epp-build  
+    /control/alias G4EPP_BUILD_DIR /scratch/alpine/jucl6426/g4epp-build
+    # /Users/luna/Documents/Work/Research/geant4/G4EPP-build
 
 # Starting altitude of particles in the simulation. Units: [km]
     /control/alias STARTING_ALTITUDE_KM 450.0 
