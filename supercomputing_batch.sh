@@ -2,7 +2,7 @@
 
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
-#SBATCH --cpus-per-task 128
+#SBATCH --cpus-per-task 8
 #SBATCH --time 01:00:00
 #SBATCH --output /projects/jucl6426/G4EPP_results/results_%j/log.txt
 #SBATCH --qos=blanca-lair
@@ -13,7 +13,7 @@
 echo "
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
-#SBATCH --cpus-per-task 128
+#SBATCH --cpus-per-task 8
 #SBATCH --time 01:30:00
 #SBATCH --output /projects/jucl6426/G4EPP_results/results_%j/log.txt
 #SBATCH --qos=blanca-lair
