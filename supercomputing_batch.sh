@@ -9,6 +9,18 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jucl6426@colorado.edu
 
+# Print slurm parameters
+echo "
+#SBATCH --job-name G4EPP
+#SBATCH --nodes 1
+#SBATCH --cpus-per-task 128
+#SBATCH --time 00:10:00
+#SBATCH --output /projects/jucl6426/G4EPP_results/log_%j.txt
+#SBATCH --qos=preemptable
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=jucl6426@colorado.edu
+"
+
 # https://stackoverflow.com/questions/65603381/slurm-nodes-tasks-cores-and-cpus
 # https://slurm.schedmd.com/sbatch.html
 
@@ -16,11 +28,11 @@
 rm -f /scratch/alpine/jucl6426/g4epp-build/results/*
 
 # Execute runs
-./G4EPP 1000 e- 10000 67
+./G4EPP 5000 e- 10000 67
 
 # Move results out of scratch and rename to correspond to job
 cp -r /scratch/alpine/jucl6426/g4epp-build/results/input_450.0km_record_450.0km /projects/jucl6426/G4EPP_results
-mv /projects/jucl6426/G4EPP_results/results/input_450.0km_record_450.0km /projects/jucl6426/G4EPP_results/results_$SLURM_JOB_ID
+mv /projects/jucl6426/G4EPP_results/input_450.0km_record_450.0km /projects/jucl6426/G4EPP_results/results_$SLURM_JOB_ID
 
 # Exit
 echo "Job complete."
