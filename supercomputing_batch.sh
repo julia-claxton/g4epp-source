@@ -3,9 +3,9 @@
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
 #SBATCH --cpus-per-task 128
-#SBATCH --time 00:10:00
-#SBATCH --output /projects/jucl6426/G4EPP_results/log_%j.txt
-#SBATCH --qos=preemptable
+#SBATCH --time 01:00:00
+#SBATCH --output /projects/jucl6426/G4EPP_results/results_%j/log.txt
+#SBATCH --qos=blanca-lair
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jucl6426@colorado.edu
 
@@ -14,9 +14,9 @@ echo "
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
 #SBATCH --cpus-per-task 128
-#SBATCH --time 00:10:00
-#SBATCH --output /projects/jucl6426/G4EPP_results/log_%j.txt
-#SBATCH --qos=preemptable
+#SBATCH --time 01:30:00
+#SBATCH --output /projects/jucl6426/G4EPP_results/results_%j/log.txt
+#SBATCH --qos=blanca-lair
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jucl6426@colorado.edu
 "
@@ -28,7 +28,7 @@ echo "
 rm -f /scratch/alpine/jucl6426/g4epp-build/results/*
 
 # Execute runs
-./G4EPP 5000 e- 10000 67
+./G4EPP 100 e- 10000 67
 
 # Move results out of scratch and rename to correspond to job
 cp -r /scratch/alpine/jucl6426/g4epp-build/results/input_450.0km_record_450.0km /projects/jucl6426/G4EPP_results

@@ -191,9 +191,8 @@ int main(int argc,char** argv)
   tm = *std::localtime(&t);
 
   std::cout << "=====================================================================" << std::endl;
-  std::cout << "Simulation Complete: " << std::put_time(&tm, "%F %T") << std::endl;
-  std::cout << "    Backscatter and energy deposition written to ./results" << std::endl;
-  std::cout << "    Simulation completed in " << elapsed_time_ms/1000.0 << " seconds" << std::endl;
+  std::cout << "Simulation completed in " << elapsed_time_ms/1000.0 << " seconds" << std::endl;
+  std::cout << "Simulation Finish: " << std::put_time(&tm, "%F %T") << std::endl;
   std::cout << "=====================================================================" << std::endl << std::endl;
 
   return 0;
