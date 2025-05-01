@@ -2,9 +2,8 @@
 
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
-#SBATCH --tasks-per-node 1
-#SBATCH --cpus-per-task 128
-#SBATCH --time 00:10:00
+#SBATCH --cpus-per-task 256
+#SBATCH --time 00:05:00
 #SBATCH --output /projects/jucl6426/G4EPP_results/G4EPP_LOG_%j.txt
 #SBATCH --qos=preemptable
 #SBATCH --mail-type=ALL
@@ -12,7 +11,6 @@
 
 # https://stackoverflow.com/questions/65603381/slurm-nodes-tasks-cores-and-cpus
 # https://slurm.schedmd.com/sbatch.html
-
 
 # Remove previous results
 rm -f /scratch/alpine/jucl6426/g4epp-build/results/*
