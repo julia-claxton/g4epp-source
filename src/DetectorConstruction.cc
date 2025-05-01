@@ -68,8 +68,6 @@ DetectorConstruction::~DetectorConstruction()
 
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {
-  // Get nist material manager
-  //G4NistManager* nist = G4NistManager::Instance();
   G4GeometryManager::GetInstance()->SetWorldMaximumExtent(1000*km);
 
   // Material: Vacuum
@@ -98,7 +96,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   // World
   G4double world_sizeXY = 1000.0*km;
   G4double world_sizeZ  = 1000.0*km;
-  // G4Material* world_mat = nist->FindOrBuildMaterial("G4_AIR");
 
   G4Tubs* solidWorld = new G4Tubs(
     "World",          //its name
@@ -328,7 +325,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		  checkOverlaps
     );
   }
-  // always return the physical World
+  // Always return the physical World
   return physWorld;
 }
 

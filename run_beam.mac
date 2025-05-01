@@ -38,6 +38,9 @@
 
 # Set result filepaths
     /control/alias RESULTS_DIR {G4EPP_BUILD_DIR}/results
+    /control/shell mkdir {RESULTS_DIR}/input_{STARTING_ALTITUDE_KM}km_record_{RECORDING_ALTITUDE_KM}km
+    /control/alias RESULTS_DIR {RESULTS_DIR}/input_{STARTING_ALTITUDE_KM}km_record_{RECORDING_ALTITUDE_KM}km
+
     /control/alias BEAM_PARAMETERS {BEAM_PARTICLE_LONGNAME}_input_{BEAM_ENERGY_KEV}keV_{BEAM_PITCH_ANGLE_DEG}deg_{NUMBER_OF_PARTICLES}particles
 
     /dataCollection/setEnergyDepositionFileName {RESULTS_DIR}/energy_deposition_{BEAM_PARAMETERS}.csv

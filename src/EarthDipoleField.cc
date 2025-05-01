@@ -42,7 +42,7 @@ void EarthDipoleField::GetFieldValue(const G4double Point[4],G4double *Bfield) c
 
   // Magnitude of B-field, units assigned here
   G4double B_magnitude = fDipoleMoment / std::pow(z, 3) * tesla; // T
-  // TODO igrf?
+  // TODO IGRF?
 
   // Bfield[0] ~ West direction
   // Bfield[1] ~ North direction

@@ -106,7 +106,13 @@ void RunAction::BeginOfRunAction(const G4Run*)
     // Pad with spaces to have consistent print location
     int nThreads = G4Threading::GetNumberOfRunningWorkerThreads();
     int paddingLength = std::to_string(nThreads).length() - std::to_string(threadID).length();
-    G4cout << std::string(paddingLength, ' ') << "STARTING: Thread " << threadID << G4endl;
+
+    // Get current time to print
+    std::time_t t = std::time(nullptr);
+    std::tm tm = *std::localtime(&t);
+
+    // Print startup message
+    G4cout << std::string(paddingLength, ' ') << "(" << std::put_time(&tm, "%F %T") <<") STARTING: Thread " << threadID << G4endl;
   }
 
   // Change parameters for looping particles
@@ -157,7 +163,13 @@ void RunAction::EndOfRunAction(const G4Run*)
     // Pad with spaces to have consistent print location
     int nThreads = G4Threading::GetNumberOfRunningWorkerThreads();
     int paddingLength = std::to_string(nThreads).length() - std::to_string(threadID).length();
-    G4cout << std::string(paddingLength, ' ') << "FINISHED: Thread " << threadID << G4endl;
+    
+    // Get current time to print
+    std::time_t t = std::time(nullptr);
+    std::tm tm = *std::localtime(&t);
+
+    // Print startup message
+    G4cout << std::string(paddingLength, ' ') << "(" << std::put_time(&tm, "%F %T") <<") \033[0;32mFINISHED: Thread " << threadID << "\033[0m" << G4endl;
     return;
   }
 

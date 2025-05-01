@@ -75,17 +75,13 @@ F03FieldSetup::F03FieldSetup()
    fStepper(0),
    fFieldMessenger(0)
 {
-  fMagneticField      = new EarthDipoleField(); 
-	  
+  fMagneticField = new EarthDipoleField(); 
   fFieldMessenger = new F03FieldMessenger(this);
- 
   fEquation = new G4Mag_UsualEqRhs(fMagneticField);
-
 
   // Default values
   fMinStep     = 0.01*km ; 
   fStepperType = 10;
-
   fFieldManager = GetGlobalFieldManager();
 
   UpdateField();
@@ -104,7 +100,7 @@ F03FieldSetup::~F03FieldSetup()
 void F03FieldSetup::UpdateField()
 {
   // It must be possible to call 'again' - e.g. to choose an alternative stepper
-  //   has been chosen, or in case other changes have been made.
+  // has been chosen, or in case other changes have been made.
 
   // 1. First clean up previous state.
   delete fChordFinder;
@@ -112,8 +108,8 @@ void F03FieldSetup::UpdateField()
 
   /*
   // Excess verbosity
-  G4cout<<"F03FieldSetup::UpdateField > The minimal step is equal to " << fMinStep/mm <<" mm"<<G4endl;
-  G4cout<<"                            Stepper Type chosen = " << fStepperType << G4endl;
+  G4cout << "F03FieldSetup::UpdateField > The minimal step is equal to " << fMinStep/mm <<" mm"<<G4endl;
+  G4cout<< "                              Stepper Type chosen = " << fStepperType << G4endl;
   */
 
   // 2. Create the steppers ( Note: this also deletes the previous ones. )
@@ -125,7 +121,6 @@ void F03FieldSetup::UpdateField()
 
   // 4. Ensure that the field is updated (in Field manager & equation)
   fFieldManager->SetDetectorField(fMagneticField);
-  
 }
 
 void F03FieldSetup::SetStepper()
@@ -198,7 +193,6 @@ void F03FieldSetup::SetFieldValue(G4ThreeVector fieldVector)
 
   if(fieldVector != G4ThreeVector(0.,0.,0.))
   {
-    //fMagneticField = new  G4UniformMagField(fieldVector);
     fMagneticField = new EarthDipoleField();
   }
   else
@@ -217,12 +211,10 @@ void F03FieldSetup::SetFieldValue(G4ThreeVector fieldVector)
   //     with pointer to new field
   GetGlobalFieldManager()->SetDetectorField(fMagneticField);
   fEquation->SetFieldObj( fMagneticField );
-
 }
 
 
 G4FieldManager* F03FieldSetup::GetGlobalFieldManager(){
-  return G4TransportationManager::GetTransportationManager()
-                                  ->GetFieldManager();
+  return G4TransportationManager::GetTransportationManager()->GetFieldManager();
 }
 

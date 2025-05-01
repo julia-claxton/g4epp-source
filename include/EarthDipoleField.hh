@@ -14,7 +14,7 @@ public:
   virtual ~EarthDipoleField() override;
 
   virtual void GetFieldValue(const G4double Point[4], 
-		                   G4double *Bfield) const override;
+		                         G4double *Bfield) const override;
 private:
   G4double fDipoleMoment;
   G4double fGeomagLatitude;

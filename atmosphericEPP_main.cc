@@ -103,6 +103,7 @@ int main(int argc,char** argv)
 
   // Construct the run manager in multithreaded mode
   G4MTRunManager* runManager = new G4MTRunManager;
+  runManager->SetNumberOfThreads(G4Threading::G4GetNumberOfCores()); // Use maximum number of possible cores
 
   // Physics list
   G4PhysListFactory factory;
@@ -156,9 +157,11 @@ int main(int argc,char** argv)
 
   // Print status block
   std::cout << "=====================================================================" << std::endl;
-  std::time_t current_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-  std::cout << "Starting Simulation: " << std::ctime(&current_time) << std::endl;
-  
+  std::time_t t = std::time(nullptr);
+  std::tm tm = *std::localtime(&t);
+  std::cout << "Starting Simulation: " << std::put_time(&tm, "%F %T") << std::endl;
+  std::cout << std::endl;
+
   std::cout << "Multithreading Active" << std::endl;
   std::cout << "    " << G4Threading::G4GetNumberOfCores() << " cores available" << std::endl;
   std::cout << "    " << runManager->GetNumberOfThreads() << " threads active" << std::endl;
@@ -170,7 +173,8 @@ int main(int argc,char** argv)
     "    Energy:      " << energy      << " keV" << std::endl <<
     "    Pitch Angle: " << pitch_angle << " deg" <<
   std::endl;
-  std::cout << "=====================================================================" << std::endl << std::endl;
+  std::cout << "=====================================================================" << std::endl;
+  std::cout << std::endl;
 
   // Execute run
   UImanager->ApplyCommand("/control/execute run_beam.mac");
@@ -181,11 +185,13 @@ int main(int argc,char** argv)
 
   // Report run statistics
   std::cout << std::endl;
-  current_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+  
+  t = std::time(nullptr);
+  tm = *std::localtime(&t);
 
   std::cout << "=====================================================================" << std::endl;
-  std::cout << "Simulation Complete: " << std::ctime(&current_time);
+  std::cout << "Simulation Complete: " << std::put_time(&tm, "%F %T") << std::endl;
   std::cout << "    Backscatter and energy deposition written to ./results" << std::endl;
   std::cout << "    Simulation completed in " << elapsed_time_ms/1000.0 << " seconds" << std::endl;
   std::cout << "=====================================================================" << std::endl << std::endl;
