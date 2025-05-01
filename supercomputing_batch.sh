@@ -3,7 +3,7 @@
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
 #SBATCH --cpus-per-task 128
-#SBATCH --time 00:05:00
+#SBATCH --time 00:10:00
 #SBATCH --output /projects/jucl6426/G4EPP_results/G4EPP_LOG_%j.txt
 #SBATCH --qos=preemptable
 #SBATCH --mail-type=ALL
@@ -16,7 +16,7 @@
 rm -f /scratch/alpine/jucl6426/g4epp-build/results/*
 
 # Execute runs
-./G4EPP 1000 e- 10000 67
+./G4EPP 5000 e- 10000 67
 
 # Move results out of scratch
 rm -rf /projects/jucl6426/G4EPP_output/* # Clear old results. Will fail if doesn't exist
