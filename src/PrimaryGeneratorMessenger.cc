@@ -23,7 +23,7 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* pri
   
   fDcmd = new G4UIcmdWithADouble("/beamParameters/setBeamEnergy",this);
   fDcmd->SetParameterName("Beam energy [keV]",true);
-  fDcmd->SetDefaultValue(100.);
+  fDcmd->SetDefaultValue(100.0);
   fDcmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   
   fDcmd2 = new G4UIcmdWithADouble("/beamParameters/setBeamPitchAngle",this);
@@ -33,7 +33,7 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction* pri
 
   fDcmd3 = new G4UIcmdWithADouble("/beamParameters/setParticleStartingAltitude",this);
   fDcmd3->SetParameterName("Particle initial altitude [km]",true);
-  fDcmd3->SetDefaultValue(1000.);
+  fDcmd3->SetDefaultValue(450.0);
   fDcmd3->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 

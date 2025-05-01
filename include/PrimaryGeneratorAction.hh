@@ -63,10 +63,10 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     void GenerateCXB(ParticleSample*);
     
     // Messenger methods
-    void SetBeamEnergy(G4double E0){ fBeamEnergy = E0;};
-    void SetBeamPitchAngle(G4double maxPA){fBeamPitchAngle = maxPA; };
-    void SetParticleInitialAlt(G4double alt){fInitialParticleAlt = alt; };
-    void SetInputParticleType(G4String type){fSourceType = type; };
+    void SetBeamEnergy(G4double energy){ fBeamEnergy = energy;};
+    void SetBeamPitchAngle(G4double pitchAngle){fBeamPitchAngle = pitchAngle; };
+    void SetParticleInitialAlt(G4double startingAltitude){fInitialParticleAlt = startingAltitude; };
+    void SetInputParticleType(G4String particle){fSourceType = particle; };
     const G4ParticleGun* GetParticleGun() const { return fParticleGun; } // method to access particle gun
   
   private:

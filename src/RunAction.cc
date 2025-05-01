@@ -58,7 +58,6 @@ RunAction::RunAction():
   fRunActionMessenger(),
   fEnergyDepositionFileName()
 {
-  // TODO make user specifiable in the macro
   fWarningEnergy = 0.01 * keV; // Particles below this energy are killed after 1 step. Value arbitrary 
   fImportantEnergy = 0.1 * keV; // Particles above this energy are killed after fNumberOfTrials if they are looping. Value arbitrary 
   fNumberOfTrials = 1000; // Number of trials before a looping 'important' particle is killed. Value arbitrary
@@ -104,7 +103,10 @@ void RunAction::BeginOfRunAction(const G4Run*)
   // Otherwise, print startup message
   else
   {
-    G4cout << "STARTING: Thread " << threadID << G4endl;
+    // Pad with spaces to have consistent print location
+    int nThreads = G4Threading::GetNumberOfRunningWorkerThreads();
+    int paddingLength = std::to_string(nThreads).length() - std::to_string(threadID).length();
+    G4cout << std::string(paddingLength, ' ') << "STARTING: Thread " << threadID << G4endl;
   }
 
   // Change parameters for looping particles
@@ -151,7 +153,11 @@ void RunAction::EndOfRunAction(const G4Run*)
   {
     std::string threadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadID) + ".csv"; // Thread-specific filename
     fEnergyDepositionHistogram->WriteHistogramToFile(threadFilename);
-    G4cout << "FINISHED: Thread " << threadID << G4endl;
+    
+    // Pad with spaces to have consistent print location
+    int nThreads = G4Threading::GetNumberOfRunningWorkerThreads();
+    int paddingLength = std::to_string(nThreads).length() - std::to_string(threadID).length();
+    G4cout << std::string(paddingLength, ' ') << "FINISHED: Thread " << threadID << G4endl;
     return;
   }
 

@@ -176,15 +176,10 @@ int main(int argc,char** argv)
   UImanager->ApplyCommand("/control/execute run_beam.mac");
 
   // End run
-  // Free the store: user actions, physics_list and detector_description are
-  // owned and deleted by the run manager, so they should not be deleted
-  // in the main() program !
   delete runManager;
-
-  // End simulation timer
   auto t_end = std::chrono::high_resolution_clock::now();
 
-  // Report elapsed simulation time (realtime, not simulation time)
+  // Report run statistics
   std::cout << std::endl;
   current_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();

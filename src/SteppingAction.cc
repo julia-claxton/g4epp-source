@@ -31,7 +31,6 @@
 #include "SteppingAction.hh"
 #include "EventAction.hh"
 #include "DetectorConstruction.hh"
-// #include "DetectorAnalysis.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4Event.hh"
@@ -50,7 +49,8 @@ SteppingAction::SteppingAction(EventAction* eventAction, RunAction* RuAct)
   fEventAction(eventAction),
   fRunAction(RuAct),
   fBackscatterFilename(),
-  fSteppingMessenger()
+  fSteppingMessenger(),
+  fCollectionAltitude(450.0)
 {
   fSteppingMessenger = new SteppingActionMessenger(this);
 }
@@ -111,7 +111,9 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // Backscatter Tracking
   // ===========================
   // Write backscatter directly to file if detected
-  if( (position.z()/km > 450.0-500.0) && (momentumDirection.z() > 0) ) // If particle is above 450 km and moving upwards. Subtract 500 because 0.0 in world coordinates = +500 km above sea level
+  // Backscatter is defined as a particle above the collection altitude and moving upwards in world coordinates
+  // We subtract 500 because +500.0 km above sea level ==> z = 0.0 in world coordinates
+  if( (position.z()/km > fCollectionAltitude-500.0) && (momentumDirection.z() > 0) ) 
   {
     // Lock scope to stop threads from overwriting data in same file
     G4AutoLock lock(&aMutex);

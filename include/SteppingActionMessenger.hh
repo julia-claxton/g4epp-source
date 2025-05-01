@@ -1,5 +1,3 @@
-
-
 #ifndef SteppingActionMessenger_h
 #define SteppingActionMessenger_h 1
 
@@ -8,12 +6,10 @@
 
 
 class SteppingAction;
-
 class G4UIdirectory;
 class G4UIcmdWithADouble;
 class G4UIcmdWithAnInteger;
 class G4UIcmdWithAString;
-
 class SteppingActionMessenger : public G4UImessenger
 {
 public:
@@ -24,11 +20,10 @@ public:
 
 
 private:
-  SteppingAction* 	     fSteppingAction;
-  G4UIdirectory*             fSteppingActionDir;
-  G4UIcmdWithAnInteger*      fcmd;
-  G4UIcmdWithAString*        fcmd2;
-  G4UIcmdWithADouble*        fDcmd;
+  SteppingAction* 	       fSteppingAction;
+  G4UIdirectory*           fSteppingActionDir;
+  G4UIcmdWithAString*      fcmd1;
+  G4UIcmdWithADouble*      fcmd2;
 
 };
 

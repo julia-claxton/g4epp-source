@@ -58,12 +58,16 @@ class SteppingAction : public G4UserSteppingAction
     // method from the base class
     virtual void UserSteppingAction(const G4Step*);
 
+    // Messenger methods
+    void SetCollectionAltitude(G4double collectionAltitude){ fCollectionAltitude = collectionAltitude;};
+
   private:
     EventAction*             fEventAction;
     RunAction*               fRunAction;
     G4double                 fEnergyThreshold_keV;
     G4String                 fBackscatterFilename;
     SteppingActionMessenger* fSteppingMessenger;
+    G4double                 fCollectionAltitude;
 };
 
 
