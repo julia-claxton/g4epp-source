@@ -105,7 +105,4 @@ chmod +x /scratch/alpine/$USER/g4epp-build/supercomputing_batch.sh
 cd /scratch/alpine/$USER/g4epp-build
 module load slurm/blanca
 sbatch supercomputing_batch.sh # Add job to queue
-sbatch supercomputing_batch.sh # Add job to queue
-sbatch supercomputing_batch.sh # Add job to queue
-sbatch supercomputing_batch.sh # Add job to queue
 watchq # Watch job
