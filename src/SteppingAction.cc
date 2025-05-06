@@ -104,7 +104,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   if(altitudeAddress > 0 && altitudeAddress < 1000) 
   {
     const G4double energyDeposition = step->GetPreStepPoint()->GetKineticEnergy() - step->GetPostStepPoint()->GetKineticEnergy();
-    // LogEnergy(altitudeAddress, energyDeposition/keV); // Threadlocking occurs inside LogEnergy
+    LogEnergy(altitudeAddress, energyDeposition/keV); // Threadlocking occurs inside LogEnergy
   }
 
   // ===========================
