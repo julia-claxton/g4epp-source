@@ -179,7 +179,7 @@ void RunAction::EndOfRunAction(const G4Run*)
 
   // Add energy deposition from each thread to the merged histogram
   int nThreads = G4Threading::GetNumberOfRunningWorkerThreads();
-  for(int threadFileToMerge = 0; threadFileToMerge < nThreads; threadFileToMerge++) // TODO hardcoded number of threads here
+  for(int threadFileToMerge = 0; threadFileToMerge < nThreads; threadFileToMerge++)
   {
     std::string threadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadFileToMerge) + ".csv"; // Thread-specific filename
 

@@ -3,7 +3,7 @@
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 00:05:00
+#SBATCH --time 10:00:00
 #SBATCH --output /projects/jucl6426/G4EPP_results/results_%j/log.out
 #SBATCH --qos=blanca-lair
 #SBATCH --mail-type=ALL
