@@ -3,7 +3,7 @@
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 01:00:00
+#SBATCH --time 00:05:00
 #SBATCH --output /projects/jucl6426/G4EPP_results/results_%j/log.out
 #SBATCH --qos=blanca-lair
 #SBATCH --mail-type=ALL
@@ -14,7 +14,7 @@ echo "
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 01:00:00
+#SBATCH --time 00:05:00
 #SBATCH --output /projects/jucl6426/G4EPP_results/results_%j/log.out
 #SBATCH --qos=blanca-lair
 #SBATCH --mail-type=ALL
@@ -28,7 +28,7 @@ echo "
 rm -f /scratch/alpine/jucl6426/g4epp-build/results/*
 
 # Execute runs
-./G4EPP 1000 e- 10000 75
+./G4EPP 1000 e- 10000 67
 
 # Move results out of scratch and rename to correspond to job
 cp -r /scratch/alpine/jucl6426/g4epp-build/results/input_450.0km_record_450.0km/* /projects/jucl6426/G4EPP_results/results_$SLURM_JOB_ID
