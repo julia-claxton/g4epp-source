@@ -104,7 +104,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   if(altitudeAddress > 0 && altitudeAddress < 1000) 
   {
     const G4double energyDeposition = step->GetPreStepPoint()->GetKineticEnergy() - step->GetPostStepPoint()->GetKineticEnergy();
-    LogEnergy(altitudeAddress, energyDeposition/keV); // Threadlocking occurs inside LogEnergy
+    // LogEnergy(altitudeAddress, energyDeposition/keV); // Threadlocking occurs inside LogEnergy
   }
 
   // ===========================
@@ -115,6 +115,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // We subtract 500 because +500.0 km above sea level ==> z = 0.0 in world coordinates
   if( (position.z()/km > fCollectionAltitude-500.0) && (momentumDirection.z() > 0) ) 
   {
+    /*
     // Lock scope to stop threads from overwriting data in same file
     G4AutoLock lock(&aMutex);
 
@@ -134,6 +135,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
       << position.y()/m << ','
       << (position.z()/m) + 500000 << '\n'; // Shift so we are writing altitude above sea level to file rather than the world coordinates
     dataFile.close();
+    */
 
     // Kill particle after data collection
     track->SetTrackStatus(fStopAndKill);
