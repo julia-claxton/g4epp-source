@@ -66,6 +66,12 @@ RunAction::RunAction():
 
   // Initialize energy deposition histogram
   fEnergyDepositionHistogram = new myHistogram(); // Defaults to 0-999 km in 1 km bins
+
+  // Initialize backscatter recording structures
+  std::vector<std::string> fBackscatteredParticleNames;
+  std::vector<double> fBackscatteredEnergieskeV;
+  std::vector<std::array<double,3>> fBackscatterDirections;
+  std::vector<std::array<double,3>> fBackscatterPositions;
 }
 
 RunAction::~RunAction()
@@ -88,17 +94,6 @@ void RunAction::BeginOfRunAction(const G4Run*)
       G4cerr << G4endl << "*** ERROR: User-specified build directory " << buildDirectory << " does not exist. This path is user-specified in set_simulation_parameters.mac. Check that G4EPP_BUILD_DIR in set_simulation_parameters.mac matches your build directory and does not have a slash at the end." << G4endl << G4endl;
       throw;
     }
-
-    // I am having a lot of trouble getting RunAction and SteppingAction to both see/own the backscatter filename, so 
-    // we will just reconstruct the backscatter filename from the energy deposition filename which RunAction owns.
-    // If the format of either backscatter or energy deposition files changes, this might break. Don't change those!
-    std::string backscatterFilename = std::regex_replace(fEnergyDepositionFileName, std::regex("energy_deposition"), "backscatter");
-        
-    // Write header
-    std::ofstream dataFile;
-    dataFile.open(backscatterFilename, std::ios_base::out); // Open file in write mode to overwrite any previous results
-    dataFile << "particle_name,particle_energy_keV,momentum_direction_x,momentum_direction_y,momentum_direction_z,x_meters,y_meters,z_meters\n";
-    dataFile.close();
   }
   // Otherwise, print startup message
   else
@@ -154,12 +149,20 @@ void RunAction::EndOfRunAction(const G4Run*)
   // Get thread ID to see if we are main thread or not
   int threadID = G4Threading::G4GetThreadId();
 
-  // If we are not the main thread, write energy deposition to file and exit
+  // If we are not the main thread, write energy deposition and backscatter to file and exit
   if(threadID != -1)
   {
-    std::string threadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadID) + ".csv"; // Thread-specific filename
-    fEnergyDepositionHistogram->WriteHistogramToFile(threadFilename);
+    // Write energy deposition to file
+    std::string energyDepositionThreadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadID) + ".csv"; // Thread-specific filename
+    fEnergyDepositionHistogram->WriteHistogramToFile(energyDepositionThreadFilename);
     
+
+    // Write backscatter to file
+    std::string backscatterThreadFilename = std::regex_replace(fEnergyDepositionFileName, std::regex("energy_deposition"), "backscatter");
+    backscatterThreadFilename = backscatterThreadFilename.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadID) + ".csv"; // Thread-specific filename
+    writeBackscatterToFile(backscatterThreadFilename);
+
+    // Done writing data, now print status message
     // Pad with spaces to have consistent print location
     int nThreads = G4Threading::GetNumberOfRunningWorkerThreads();
     int paddingLength = std::to_string(nThreads).length() - std::to_string(threadID).length();
@@ -168,23 +171,31 @@ void RunAction::EndOfRunAction(const G4Run*)
     std::time_t t = std::time(nullptr);
     std::tm tm = *std::localtime(&t);
 
-    // Print startup message
+    // Print message
     G4cout << std::string(paddingLength, ' ') << "(" << std::put_time(&tm, "%F %T") <<") \033[0;32mFINISHED: Thread " << threadID << "\033[0m" << G4endl;
     return;
   }
 
   // If we are the main thread, merge energy deposition datafiles from each thread. Main thread ends after workers are done, so this is the end of the simulation
-  G4cout << "Merging thread-specific energy deposition data... ";
+  G4cout << "Merging thread-specific data... ";
+
+  // Create main energy deposition data structure
   myHistogram* mainEnergyDepositionHistogram = new myHistogram(); // 1000 km in 1 km bins
 
-  // Add energy deposition from each thread to the merged histogram
+  // Create main backscatter file
+  std::ofstream backscatterFile;
+  std::string backscatterFilename = std::regex_replace(fEnergyDepositionFileName, std::regex("energy_deposition"), "backscatter");
+  backscatterFile.open(backscatterFilename, std::ios_base::out); // Open file in write mode to overwrite any previous results
+  backscatterFile << "particle_name,particle_energy_keV,momentum_direction_x,momentum_direction_y,momentum_direction_z,x_meters,y_meters,z_meters\n";
+
   int nThreads = G4Threading::GetNumberOfRunningWorkerThreads();
   for(int threadFileToMerge = 0; threadFileToMerge < nThreads; threadFileToMerge++)
   {
-    std::string threadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadFileToMerge) + ".csv"; // Thread-specific filename
+    // ENERGY DEPOSITION:
+    std::string energyDepositionThreadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadFileToMerge) + ".csv"; // Thread-specific filename
 
     // Read in energy deposition from this thread via csv
-    io::CSVReader<2> in(threadFilename);
+    io::CSVReader<2> in(energyDepositionThreadFilename);
     in.read_header(io::ignore_extra_column, "altitude_km", "energy_deposition_kev");
     int altitudeAddress; double energy_deposition;
 
@@ -193,10 +204,45 @@ void RunAction::EndOfRunAction(const G4Run*)
       mainEnergyDepositionHistogram->AddCountToBin(altitudeAddress, energy_deposition);
     }
     // Delete this thread-specific file
-    std::remove(threadFilename.c_str());
+    std::remove(energyDepositionThreadFilename.c_str());
+
+
+    // BACKSCATTER:
+    std::string backscatterThreadFilename = std::regex_replace(fEnergyDepositionFileName, std::regex("energy_deposition"), "backscatter");
+    backscatterThreadFilename = backscatterThreadFilename.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadFileToMerge) + ".csv"; // Thread-specific filename
+
+    // Read in backscatter from this thread via csv
+    io::CSVReader<8> inBackscatter(backscatterThreadFilename);
+    inBackscatter.read_header(io::ignore_extra_column, "particle_name", "particle_energy_keV", "momentum_direction_x", "momentum_direction_y", "momentum_direction_z", "x_meters", "y_meters", "z_meters");
+    std::string particle_name;
+    double particle_energy_keV;
+    double momentum_direction_x;
+    double momentum_direction_y;
+    double momentum_direction_z;
+    double x_meters;
+    double y_meters;
+    double z_meters;
+
+    // For each row in the file, add energy deposition to main histogram
+    while(inBackscatter.read_row(particle_name, particle_energy_keV, momentum_direction_x, momentum_direction_y, momentum_direction_z, x_meters, y_meters, z_meters)){ 
+      backscatterFile << 
+        particle_name << "," <<
+        particle_energy_keV << "," <<
+        momentum_direction_x << "," <<
+        momentum_direction_y << "," <<
+        momentum_direction_z << "," <<
+        x_meters << "," <<
+        y_meters << "," <<
+        z_meters << "\n"
+      ;
+    }
+
+    // Delete the thread-specific file
+    std::remove(backscatterThreadFilename.c_str());
   }
-  // Write main energy histogram to file
   mainEnergyDepositionHistogram->WriteHistogramToFile(fEnergyDepositionFileName);
+  backscatterFile.close();
+
   G4cout << "Done" << G4endl;
 }
 
@@ -222,3 +268,35 @@ std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransporta
 }
 
 
+void RunAction::writeBackscatterToFile(std::string filename)
+{
+  // Make sure we don't have missing data
+  int n = fBackscatteredParticleNames.size();
+  if((fBackscatteredEnergieskeV.size() != n) || (fBackscatterDirections.size() != n) ||(fBackscatterPositions.size() != n))
+  {
+    G4cout << "**ERROR: Missed backscatter data! You shouldn't see this." << G4endl;
+    throw;
+  }
+
+  // Write header
+  std::ofstream dataFile;
+  dataFile.open(filename, std::ios_base::out); // Open file in write mode to overwrite any previous results
+  dataFile << "particle_name,particle_energy_keV,momentum_direction_x,momentum_direction_y,momentum_direction_z,x_meters,y_meters,z_meters\n";
+  for(int i = 0; i < fBackscatteredParticleNames.size()-1; i++)
+  {
+    dataFile << 
+      fBackscatteredParticleNames.at(i) << "," <<
+
+      fBackscatteredEnergieskeV.at(i) << "," <<
+
+      fBackscatterDirections.at(i)[0] << "," <<
+      fBackscatterDirections.at(i)[1] << "," <<
+      fBackscatterDirections.at(i)[2] << "," <<
+
+      fBackscatterPositions.at(i)[0] << "," <<
+      fBackscatterPositions.at(i)[1] << "," <<
+      fBackscatterPositions.at(i)[2] << "\n"
+    ;
+  }
+  dataFile.close();
+}

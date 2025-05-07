@@ -103,41 +103,28 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   
   if(altitudeAddress > 0 && altitudeAddress < 1000) 
   {
-    const G4double energyDeposition = step->GetPreStepPoint()->GetKineticEnergy() - step->GetPostStepPoint()->GetKineticEnergy();
+    const G4double energyDeposition = step->GetPreStepPoint()->GetKineticEnergy() - postStepKineticEnergy;
     LogEnergy(altitudeAddress, energyDeposition/keV); // Threadlocking occurs inside LogEnergy
   }
 
   // ===========================
   // Backscatter Tracking
   // ===========================
-  // Write backscatter directly to file if detected
+  // Write backscatter to memory if detected
   // Backscatter is defined as a particle above the collection altitude and moving upwards in world coordinates
-  // We subtract 500 because +500.0 km above sea level ==> z = 0.0 in world coordinates
+  // We subtract 500 from the collection altitude because +500.0 km above sea level ==> z = 0.0 in world coordinates
   if( (position.z()/km > fCollectionAltitude-500.0) && (momentumDirection.z() > 0) ) 
   {
-    /*
-    // Lock scope to stop threads from overwriting data in same file
-    G4AutoLock lock(&aMutex);
-
     // Get particle energy
     const G4double preStepEnergy =  step->GetPreStepPoint()->GetKineticEnergy();
 
-    // Write position, direction, and kinetic energy to file
-    std::ofstream dataFile;
-    dataFile.open(fBackscatterFilename, std::ios_base::app); // Open file in append mode
-    dataFile 
-      << particleName << ','
-      << preStepEnergy/keV << ','
-      << momentumDirection.x() << ','
-      << momentumDirection.y() << ','
-      << momentumDirection.z() << ','
-      << position.x()/m << ',' 
-      << position.y()/m << ','
-      << (position.z()/m) + 500000 << '\n'; // Shift so we are writing altitude above sea level to file rather than the world coordinates
-    dataFile.close();
-    */
+    // Write particle parameters to memory
+    fRunAction->fBackscatteredParticleNames.push_back(particleName);
+    fRunAction->fBackscatteredEnergieskeV.push_back(preStepEnergy/keV);
+    fRunAction->fBackscatterDirections.push_back({momentumDirection.x(), momentumDirection.y(), momentumDirection.z()});
+    fRunAction->fBackscatterPositions.push_back({position.x()/m, position.y()/m, (position.z()/m) + 500000.0}); // Shift z-axis so we are writing altitude above sea level to file rather than the world coordinates
 
-    // Kill particle after data collection
+    // Kill particle
     track->SetTrackStatus(fStopAndKill);
   }
 }
@@ -145,6 +132,6 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 void SteppingAction::LogEnergy(G4int histogramAddress, G4double energy)
 {
   // This is in a different function so the threadlock isn't in scope for all of every step
-  G4AutoLock lock(&aMutex);
+  G4AutoLock lock(&aMutex); // Might not be necessary with thread-specific files
   fRunAction->fEnergyDepositionHistogram->AddCountToBin(histogramAddress, energy/keV);
 }
