@@ -273,11 +273,13 @@ std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransporta
 
 void RunAction::writeBackscatterToFile(std::string filename)
 {
-  // Make sure we don't have missing data
+  // Make sure we don't have missing data for any backscatter
   int n = fBackscatteredParticleNames.size();
+  G4cout << "n backscatter = " << G4endl;
+
   if((fBackscatteredEnergieskeV.size() != n) || (fBackscatterDirections.size() != n) ||(fBackscatterPositions.size() != n))
   {
-    G4cout << "**ERROR: Missed backscatter data! You shouldn't see this." << G4endl;
+    G4cout << "**ERROR: Incomplete backscatter data! You shouldn't see this." << G4endl;
     throw;
   }
 
