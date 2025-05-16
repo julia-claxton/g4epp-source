@@ -214,6 +214,9 @@ void RunAction::EndOfRunAction(const G4Run*)
     std::string backscatterThreadFilename = std::regex_replace(fEnergyDepositionFileName, std::regex("energy_deposition"), "backscatter");
     backscatterThreadFilename = backscatterThreadFilename.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadFileToMerge) + ".csv"; // Thread-specific filename
 
+    // Move on if file doesn't exist (i.e. no backscatter from this thread)
+    if(std::filesystem::exists(backscatterThreadFilename) == false){continue}
+
     // Read in backscatter from this thread via csv
     io::CSVReader<8> inBackscatter(backscatterThreadFilename);
     inBackscatter.read_header(io::ignore_extra_column, "particle_name", "particle_energy_keV", "momentum_direction_x", "momentum_direction_y", "momentum_direction_z", "x_meters", "y_meters", "z_meters");
@@ -273,10 +276,14 @@ std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransporta
 
 void RunAction::writeBackscatterToFile(std::string filename)
 {
+  // Exit out if no backscatter
+  if(fBackscatteredParticleNames.empty()){
+    G4cout << "no backscatter this thread" << G4endl;
+    return
+  }
+
   // Make sure we don't have missing data for any backscatter
   int n = fBackscatteredParticleNames.size();
-  G4cout << "n backscatter = " << G4endl;
-
   if((fBackscatteredEnergieskeV.size() != n) || (fBackscatterDirections.size() != n) ||(fBackscatterPositions.size() != n))
   {
     G4cout << "**ERROR: Incomplete backscatter data! You shouldn't see this." << G4endl;
