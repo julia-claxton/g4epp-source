@@ -161,15 +161,11 @@ void RunAction::EndOfRunAction(const G4Run*)
     backscatterThreadFilename = backscatterThreadFilename.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadID) + ".csv"; // Thread-specific filename
     writeBackscatterToFile(backscatterThreadFilename);
 
-    G4cout << "threadID = " << threadID << G4endl; // TODO delete later
-
     // Done writing data, now print status message
     // Pad with spaces to have consistent print location
     int nThreads = G4Threading::GetNumberOfRunningWorkerThreads();
     int paddingLength = std::to_string(nThreads).length() - std::to_string(threadID).length();
     
-    G4cout << "threadID = " << threadID << G4endl; // TODO delete later
-
     // Get current time to print
     std::time_t t = std::time(nullptr);
     std::tm tm = *std::localtime(&t);
@@ -277,10 +273,7 @@ std::pair<G4Transportation*, G4CoupledTransportation*> RunAction::findTransporta
 void RunAction::writeBackscatterToFile(std::string filename)
 {
   // Exit out if no backscatter
-  if(fBackscatteredParticleNames.empty()){
-    G4cout << "no backscatter this thread" << G4endl;
-    return;
-  }
+  if(fBackscatteredParticleNames.empty()){return;}
 
   // Make sure we don't have missing data for any backscatter
   int n = fBackscatteredParticleNames.size();
