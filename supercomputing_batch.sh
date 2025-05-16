@@ -26,6 +26,7 @@ echo "
 
 # Remove previous results
 rm -f /scratch/alpine/jucl6426/g4epp-build/results/*
+cd /scratch/alpine/jucl6426/g4epp-build
 
 # Execute runs
 ./G4EPP 100 e- 10.0 0.0
