@@ -152,6 +152,8 @@ void RunAction::EndOfRunAction(const G4Run*)
   // If we are not the main thread, write energy deposition and backscatter to file and exit
   if(threadID != -1)
   {
+    G4cout << "threadID = " << threadID << G4endl; // TODO delete later
+
     // Write energy deposition to file
     std::string energyDepositionThreadFilename = fEnergyDepositionFileName.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadID) + ".csv"; // Thread-specific filename
     fEnergyDepositionHistogram->WriteHistogramToFile(energyDepositionThreadFilename);
