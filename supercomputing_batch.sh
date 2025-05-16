@@ -28,7 +28,7 @@ echo "
 rm -f /scratch/alpine/jucl6426/g4epp-build/results/*
 
 # Execute runs
-./G4EPP 1000 e- 10.0 0.0
+./G4EPP 100 e- 10.0 0.0
 #./G4EPP 1000 e- 56.0 0.0
 #./G4EPP 1000 e- 316.0 0.0
 #./G4EPP 1000 e- 1778.0 0.0
