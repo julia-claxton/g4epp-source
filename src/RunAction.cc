@@ -215,7 +215,7 @@ void RunAction::EndOfRunAction(const G4Run*)
     backscatterThreadFilename = backscatterThreadFilename.substr(0, fEnergyDepositionFileName.length()-4) + "_thread" + std::to_string(threadFileToMerge) + ".csv"; // Thread-specific filename
 
     // Move on if file doesn't exist (i.e. no backscatter from this thread)
-    if(std::filesystem::exists(backscatterThreadFilename) == false){continue}
+    if(std::filesystem::exists(backscatterThreadFilename) == false){continue;}
 
     // Read in backscatter from this thread via csv
     io::CSVReader<8> inBackscatter(backscatterThreadFilename);
@@ -279,7 +279,7 @@ void RunAction::writeBackscatterToFile(std::string filename)
   // Exit out if no backscatter
   if(fBackscatteredParticleNames.empty()){
     G4cout << "no backscatter this thread" << G4endl;
-    return
+    return;
   }
 
   // Make sure we don't have missing data for any backscatter
