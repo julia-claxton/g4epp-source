@@ -3,9 +3,9 @@
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 00:10:00
+#SBATCH --time 50:00:00
 #SBATCH --output /projects/jucl6426/G4EPP/results/results_%j/log.out
-#SBATCH --qos=preemptable
+#SBATCH --qos=blanca-lair
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jucl6426@colorado.edu
 
@@ -14,9 +14,9 @@ echo "
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 00:10:00
+#SBATCH --time 50:00:00
 #SBATCH --output /projects/jucl6426/G4EPP/results/results_%j/log.out
-#SBATCH --qos=preemptable
+#SBATCH --qos=blanca-lair
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jucl6426@colorado.edu
 "
@@ -30,7 +30,7 @@ cd /projects/jucl6426/G4EPP/build/
 
 # Execute runs
 for e in 10.0 10000.0; do
-  for pa in 88.0 90.0; do
+  for pa in 90.0; do
     # Run simulation
     ./G4EPP 100 e- $e $pa
     # Move results
