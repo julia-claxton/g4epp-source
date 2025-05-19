@@ -128,7 +128,7 @@ int main(int argc,char** argv)
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
   // Set the simulation parameters
-  UImanager->ApplyCommand("/control/execute set_simulation_parameters.mac");
+  UImanager->ApplyCommand("/control/execute EDIT_THIS_FILE.mac");
   
   // Set input particle number
   G4String nParticles = argv[1];
