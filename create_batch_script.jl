@@ -1,6 +1,6 @@
 using Statistics, LinearAlgebra
 
-number_of_particles = 100000  # Number of particles to input
+number_of_particles = 100#100000  # Number of particles to input
 
 input_particle = "e-"       # e- = electrons, proton = protons, gamma = photons
 
@@ -23,6 +23,19 @@ energies_to_simulate = round.(energies_to_simulate)
 pitch_angles_to_simulate = round.(pitch_angles_to_simulate)
 
 # Create shell script
+vec2str(vec) = replace("$(vec)", "[" => "", "," => "", "]" => "")
+
 file = open("$(@__DIR__)/all_beams.txt", "w")
-[println(file, "./G4EPP $(number_of_particles) $(input_particle) $(E) $(α)") for E in energies_to_simulate, α in pitch_angles_to_simulate]
+println(file,
+"""
+for e in $(vec2str(energies_to_simulate)); do
+  for pa in $(vec2str(pitch_angles_to_simulate)); do
+    # Run simulation
+    ./G4EPP $number_of_particles $input_particle \$e \$pa
+    # Move results
+    cp -r /projects/jucl6426/G4EPP/build/results/input_450.0km_record_450.0km/* /projects/jucl6426/G4EPP/results/results_\$SLURM_JOB_ID
+  done
+done
+"""
+)
 close(file)

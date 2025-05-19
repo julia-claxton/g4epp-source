@@ -28,4 +28,4 @@
 # Altitude to record and kill upgoing particles at. Units: [km]
     /control/alias RECORDING_ALTITUDE_KM 450.0
 
-# TODO geomagnetic latitude
+# TODO geomagnetic latitude/tilt angle

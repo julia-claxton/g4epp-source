@@ -63,32 +63,31 @@ find . -name '*.tar.gz' -exec rm {} \;      # OPTIONAL: Remove .tar.gz archives
 ###############################################
 
 # Download source code if source does not exist:
-cd /projects/$USER
+cd /projects/$USER/G4EPP
 # If source already exists, pull latest version:
-if [ -d "/projects/$USER/g4epp-source" ]
+if [ -d "/projects/$USER/G4EPP/source" ]
 then
-    cd g4epp-source
+    cd source
     git reset --hard origin/main
     git pull
 else
     git clone https://github.com/julia-claxton/g4epp-source.git
-    cd g4epp-source
+    mv g4epp-source source
 fi
 
 # Create/reset build directory
-cd /scratch/alpine/$USER
-rm -r /scratch/alpine/$USER/g4epp-build # May fail if already doesn't exist yet
-mkdir /scratch/alpine/$USER/g4epp-build
+cd /projects/$USER/G4EPP
+rm -r /projects/$USER/G4EPP/build # May fail if already doesn't exist yet
+mkdir /projects/$USER/G4EPP/build
 
 # Build executable
-cd g4epp-build
-cmake -DCMAKE_INSTALL_PREFIX="/projects/$USER/geant4/install" -DGeant4_DIR="/projects/$USER/geant4/install/lib64" "/projects/$USER/g4epp-source"
+cd build
+cmake -DCMAKE_INSTALL_PREFIX="/projects/$USER/geant4/install" -DGeant4_DIR="/projects/$USER/geant4/install/lib64" "/projects/$USER/G4EPP/source"
 make
 
 # Make batch scripts executable
-chmod +x /projects/jucl6426/g4epp-source/supercomputing_batch.sh
-chmod +x /scratch/alpine/$USER/g4epp-build/supercomputing_batch.sh 
-
+chmod +x /projects/jucl6426/G4EPP/source/supercomputing_batch.sh
+chmod +x /projects/jucl6426/G4EPP/build/supercomputing_batch.sh
 
 
 
@@ -103,7 +102,7 @@ chmod +x /scratch/alpine/$USER/g4epp-build/supercomputing_batch.sh
 /projects/$USER/build_g4epp.sh
     # Build G4EPP
 
-cd /scratch/alpine/$USER/g4epp-build
+cd /projects/$USER/G4EPP/build
 module load slurm/blanca
 sbatch supercomputing_batch.sh # Add job to queue
 watchq # Watch job

@@ -29,40 +29,14 @@ rm -f /scratch/alpine/jucl6426/g4epp-build/results/*
 cd /scratch/alpine/jucl6426/g4epp-build
 
 # Execute runs
-./G4EPP 100000 e- 10.0 0.0
-./G4EPP 100000 e- 56.0 0.0
-./G4EPP 100000 e- 316.0 0.0
-./G4EPP 100000 e- 1778.0 0.0
-./G4EPP 100000 e- 10000.0 0.0
-./G4EPP 100000 e- 10.0 18.0
-./G4EPP 100000 e- 56.0 18.0
-./G4EPP 100000 e- 316.0 18.0
-./G4EPP 100000 e- 1778.0 18.0
-./G4EPP 100000 e- 10000.0 18.0
-./G4EPP 100000 e- 10.0 36.0
-./G4EPP 100000 e- 56.0 36.0
-./G4EPP 100000 e- 316.0 36.0
-./G4EPP 100000 e- 1778.0 36.0
-./G4EPP 100000 e- 10000.0 36.0
-./G4EPP 100000 e- 10.0 54.0
-./G4EPP 100000 e- 56.0 54.0
-./G4EPP 100000 e- 316.0 54.0
-./G4EPP 100000 e- 1778.0 54.0
-./G4EPP 100000 e- 10000.0 54.0
-./G4EPP 100000 e- 10.0 72.0
-./G4EPP 100000 e- 56.0 72.0
-./G4EPP 100000 e- 316.0 72.0
-./G4EPP 100000 e- 1778.0 72.0
-./G4EPP 100000 e- 10000.0 72.0
-./G4EPP 100000 e- 10.0 90.0
-./G4EPP 100000 e- 56.0 90.0
-./G4EPP 100000 e- 316.0 90.0
-./G4EPP 100000 e- 1778.0 90.0
-./G4EPP 100000 e- 10000.0 90.0
-
-# Move results out of scratch and rename to correspond to job
-cp -r /scratch/alpine/jucl6426/g4epp-build/results/input_450.0km_record_450.0km/* /projects/jucl6426/G4EPP_results/results_$SLURM_JOB_ID
-    # Don't need to create the results dir, as the output file argument at the top does that for us
+for e in 10.0 56.0 316.0 1778.0 10000.0; do
+  for pa in 0.0 18.0 36.0 54.0 72.0 90.0; do
+    # Run simulation
+    ./G4EPP 100 e- $e $pa
+    # Move results
+    cp -r /projects/jucl6426/G4EPP/build/results/input_450.0km_record_450.0km/* /projects/jucl6426/G4EPP/results/results_$SLURM_JOB_ID
+  done
+done
 
 # Exit
 echo "Job complete."

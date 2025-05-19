@@ -47,7 +47,7 @@ target_link_libraries(G4EPP ${Geant4_LIBRARIES})
 set(G4EPP_FILES
   supercomputing_batch.sh
   run_beam.mac
-  set_simulation_parameters.mac
+  EDIT_THIS_FILE.mac
   MSISE00_atmosphere.csv
   )
 
