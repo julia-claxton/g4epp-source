@@ -30,7 +30,7 @@ cd /projects/jucl6426/G4EPP/build/
 
 # Execute runs
 for e in 10.0 10000.0; do
-  for pa in 0.0 90.0; do
+  for pa in 88.0 90.0; do
     # Run simulation
     ./G4EPP 100 e- $e $pa
     # Move results
