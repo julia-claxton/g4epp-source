@@ -3,9 +3,9 @@
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 50:00:00
+#SBATCH --time 00:10:00
 #SBATCH --output /projects/jucl6426/G4EPP/results/results_%j/log.out
-#SBATCH --qos=blanca-lair
+#SBATCH --qos=preemptable
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jucl6426@colorado.edu
 
@@ -14,9 +14,9 @@ echo "
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 50:00:00
+#SBATCH --time 00:10:00
 #SBATCH --output /projects/jucl6426/G4EPP/results/results_%j/log.out
-#SBATCH --qos=blanca-lair
+#SBATCH --qos=preemptable
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jucl6426@colorado.edu
 "
