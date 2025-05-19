@@ -3,7 +3,7 @@
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 50:00:00
+#SBATCH --time 3-00:00:00
 #SBATCH --output /projects/jucl6426/G4EPP/results/results_%j/log.out
 #SBATCH --qos=blanca-lair
 #SBATCH --mail-type=ALL
@@ -14,7 +14,7 @@ echo "
 #SBATCH --job-name G4EPP
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 50:00:00
+#SBATCH --time 3-00:00:00
 #SBATCH --output /projects/jucl6426/G4EPP/results/results_%j/log.out
 #SBATCH --qos=blanca-lair
 #SBATCH --mail-type=ALL
@@ -29,10 +29,10 @@ rm -f /projects/jucl6426/G4EPP/build/results/*
 cd /projects/jucl6426/G4EPP/build/
 
 # Execute runs
-for e in 10.0 10000.0; do
-  for pa in 90.0; do
+for e in 10.0 56.0 316.0 1778.0 10000.0; do
+  for pa in 0.0 11.0 22.0 34.0 45.0 56.0 68.0 79.0 90.0; do
     # Run simulation
-    ./G4EPP 100 e- $e $pa
+    ./G4EPP 100000 e- $e $pa
     # Move results
     cp -r /projects/jucl6426/G4EPP/build/results/input_450.0km_record_450.0km/* /projects/jucl6426/G4EPP/results/results_$SLURM_JOB_ID
   done
