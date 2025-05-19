@@ -64,9 +64,9 @@ find . -name '*.tar.gz' -exec rm {} \;      # OPTIONAL: Remove .tar.gz archives
 
 # Download source code if source does not exist:
 cd /projects/$USER/G4EPP
+
 # If source already exists, pull latest version:
-if [ -d "/projects/$USER/G4EPP/source" ]
-then
+if [ -d "/projects/$USER/G4EPP/source" ]; then
     cd source
     git reset --hard origin/main
     git pull
@@ -77,8 +77,11 @@ fi
 
 # Create/reset build directory
 cd /projects/$USER/G4EPP
-rm -r /projects/$USER/G4EPP/build # May fail if already doesn't exist yet
-mkdir /projects/$USER/G4EPP/build
+if [ -d "/projects/$USER/G4EPP/build" ]; then
+  rm -r /projects/$USER/G4EPP/build
+else
+  mkdir /projects/$USER/G4EPP/build
+fi
 
 # Build executable
 cd build

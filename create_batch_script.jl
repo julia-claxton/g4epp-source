@@ -1,6 +1,6 @@
 using Statistics, LinearAlgebra
 
-number_of_particles = 100#100000  # Number of particles to input
+number_of_particles = 100000  # Number of particles to input
 
 input_particle = "e-"       # e- = electrons, proton = protons, gamma = photons
 
