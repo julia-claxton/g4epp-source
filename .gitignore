@@ -23,6 +23,7 @@ Thumbs.db
 *.icloud
 .vscode/
 
+
 # LaTeX auxililiary files
 *.aux
 *.fdb_latexmk

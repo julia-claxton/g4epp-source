@@ -45,7 +45,6 @@ target_link_libraries(G4EPP ${Geant4_LIBRARIES})
 # relies on these scripts being in the current working directory.
 #
 set(G4EPP_FILES
-  supercomputing_batch.sh
   run_beam.mac
   EDIT_THIS_FILE.mac
   MSISE00_atmosphere.csv

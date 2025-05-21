@@ -1,6 +1,6 @@
 using Statistics, LinearAlgebra
 
-number_of_particles = 100000  # Number of particles to input
+number_of_particles = Int(1e5)  # Number of particles to input
 
 input_particle = "e-"       # e- = electrons, proton = protons, gamma = photons
 
@@ -22,20 +22,37 @@ pitch_angles_to_simulate = LinRange(pitch_angle_deg_min, pitch_angle_deg_max, pi
 energies_to_simulate = round.(energies_to_simulate)
 pitch_angles_to_simulate = round.(pitch_angles_to_simulate)
 
-# Create shell script
-vec2str(vec) = replace("$(vec)", "[" => "", "," => "", "]" => "")
 
-file = open("$(@__DIR__)/all_beams.txt", "w")
+
+
+
+# Create shell script
+E = energies_to_simulate[1]
+α = pitch_angles_to_simulate[1]
+
+job_name = "$(E)keV_$(α)deg"
+
+file = open("$(@__DIR__)/$(job_name).sh", "w")
 println(file,
 """
-for e in $(vec2str(energies_to_simulate)); do
-  for pa in $(vec2str(pitch_angles_to_simulate)); do
-    # Run simulation
-    ./G4EPP $number_of_particles $input_particle \$e \$pa
-    # Move results
-    cp -r /projects/jucl6426/G4EPP/build/results/input_450.0km_record_450.0km/* /projects/jucl6426/G4EPP/results/results_\$SLURM_JOB_ID
-  done
-done
+#!/bin/bash
+
+#SBATCH --job-name G4EPP_$(job_name)
+#SBATCH --nodes 1
+#SBATCH --ntasks-per-node 40
+#SBATCH --time 05:00:00
+#SBATCH --output /projects/jucl6426/G4EPP/results/batch/log_$(job_name).out
+#SBATCH --qos=blanca-lair
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=jucl6426@colorado.edu
+
+# Run simulation
+cd /projects/jucl6426/G4EPP/build/
+./G4EPP $(number_of_particles) e- $(E) $(α)
+
+# Copy results to safe folder
+cp -r /projects/jucl6426/G4EPP/build/results/input_450.0km_record_450.0km/backscatter_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles /projects/jucl6426/G4EPP/results/batch
+cp -r /projects/jucl6426/G4EPP/build/results/input_450.0km_record_450.0km/energy_deposition_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles /projects/jucl6426/G4EPP/results/batch
 """
 )
 close(file)
