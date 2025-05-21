@@ -65,6 +65,7 @@
         "streambuf": "cpp",
         "system_error": "cpp",
         "thread": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "complex": "cpp"
     }
 }

@@ -38,7 +38,7 @@ void EarthDipoleField::GetFieldValue(const G4double Point[4],G4double *Bfield) c
   // Radial distance from Earth center, input in kilometers
   // 1000 km / 2 = 500 km addition to account for coordinate axes in 
   // center of simulation volume
-  G4double z = fEarthRadius + (Point[2]/km + 1000./2.);  // km
+  G4double z = fEarthRadius + (Point[2]/km + 1000.0/2.0);  // km
 
   // Magnitude of B-field, units assigned here
   G4double B_magnitude = fDipoleMoment / std::pow(z, 3) * tesla; // T
@@ -49,7 +49,7 @@ void EarthDipoleField::GetFieldValue(const G4double Point[4],G4double *Bfield) c
   // Bfield[2] ~ Up direction, or radially out from Earth 
   Bfield[0] = 0; // Bx
   Bfield[1] = B_magnitude * std::cos(geomagLat_radians);       // By
-  Bfield[2] = B_magnitude * -2. * std::sin(geomagLat_radians); // Bz
+  Bfield[2] = B_magnitude * -2. * std::sin(geomagLat_radians); // Bz TODO cannot keep this formulation with the *2 for future versions with IGRF or user-editable dip angle
   Bfield[3] = 0; // Ex
   Bfield[4] = 0; // Ey
   Bfield[5] = 0; // Ez

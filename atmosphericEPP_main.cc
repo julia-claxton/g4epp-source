@@ -82,7 +82,7 @@ int main(int argc,char** argv)
     std::cout << "Incorrect number of command line arguments provided. " << argc-1 << " given, 4 required. Format: ./G4EPP <number of particles> <particle name> <particle energy> <particle pitch angle>" << std::endl;
     throw;
   }
-
+  
   // Start simulation timer
   auto t_start = std::chrono::high_resolution_clock::now();
 
@@ -191,7 +191,7 @@ int main(int argc,char** argv)
   tm = *std::localtime(&t);
 
   std::cout << "=====================================================================" << std::endl;
-  std::cout << "Simulation completed in " << elapsed_time_ms/1000.0 << " seconds" << std::endl;
+  std::cout << "Simulation completed in " << elapsed_time_ms/1000.0 << " seconds (" << energy << " keV, " << pitch_angle << " deg)" << std::endl;
   std::cout << "Simulation Finish: " << std::put_time(&tm, "%F %T") << std::endl;
   std::cout << "=====================================================================" << std::endl << std::endl;
 
