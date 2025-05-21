@@ -100,7 +100,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // Poker Flats is at 65.77 geomagnetic latitude, which has 77.318 deg magnetic 
   // tilt angle => we want to tilt our coordinate system +12.682 deg about x.
   G4double tilt_angle = 12.682 * fRad2Deg; // TODO dip angle will vary based on geomaglat
-  r->zDir = x0;
+  r->xDir = x0;
   r->yDir = (std::cos(tilt_angle) * y0) - (std::sin(tilt_angle) * z0);
   r->zDir = (std::sin(tilt_angle) * y0) + (std::cos(tilt_angle) * z0);
 
