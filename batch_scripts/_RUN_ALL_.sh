@@ -1,3 +1,5 @@
+#!/bin/bash
+
 for i in /projects/$USER/G4EPP/source/batch_scripts/*.sh; do
   sbatch "$i"
 done
