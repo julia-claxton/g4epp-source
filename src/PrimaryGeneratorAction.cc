@@ -116,7 +116,10 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   double generatedPitchAngle_deg = std::acos(dotProd / (momentumNorm * Bnorm)) * 180/3.14159265358979;
 
   if( abs(generatedPitchAngle_deg - fBeamPitchAngle) > 1){
-    G4cout << "** ERROR: Primary generated with pitch angle >1º different than user-specified pitch angle. You should never see this. Please email julia.claxton@colorado.edu with this error and the conditions that produced it." << G4endl;
+    G4cout << "** ERROR: Primary generated with pitch angle >1º different than user-specified pitch angle. You should never see this. Please email julia.claxton@colorado.edu with this error and the conditions that produced it." <<
+    G4endl << "    generatedPitchAngle_deg: " << generatedPitchAngle_deg <<
+    G4endl << "    fBeamPitchAngle: " << fBeamPitchAngle <<
+    G4endl;
     throw;
   }
 
