@@ -48,6 +48,9 @@ for E in energies_to_simulate
     #SBATCH --mail-type=ALL
     #SBATCH --mail-user=jucl6426@colorado.edu
 
+    # Terminate on any non-zero exit status
+    set -e
+
     # Run simulation
     cd /projects/jucl6426/G4EPP/build/
     ./G4EPP $(number_of_particles) e- $(E) $(α)
