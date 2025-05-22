@@ -24,7 +24,7 @@ energies_to_simulate = round.(energies_to_simulate)
 pitch_angles_to_simulate = round.(pitch_angles_to_simulate)
 
 energies_to_simulate = [10.0, 10000.0]
-pitch_angles_to_simulate = [88.0]
+pitch_angles_to_simulate = [90.0]
 
 # Create shell scripts
 rm.(glob("*deg.sh", @__DIR__))
