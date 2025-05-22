@@ -3,7 +3,7 @@
 #SBATCH --job-name G4EPP_3729.0keV_0.0deg
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 07:00:00
+#SBATCH --time 10:00:00
 #SBATCH --output /projects/jucl6426/G4EPP/results/log_3729.0keV_0.0deg.out
 #SBATCH --qos=preemptable
 #SBATCH --exclude=bhpc-c5-u7-20,bhpc-c5-u7-21,bhpc-c5-u7-22,bhpc-c5-u7-23

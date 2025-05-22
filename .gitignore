@@ -21,7 +21,8 @@
 ehthumbs.db
 Thumbs.db
 *.icloud
-.vscode/
+/.vscode
+* 2.*
 
 
 # LaTeX auxililiary files
