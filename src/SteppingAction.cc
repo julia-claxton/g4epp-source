@@ -64,6 +64,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // ===========================
   G4Track* track = step->GetTrack();
   const G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
+  G4double preStepKineticEnergy = step->GetPreStepPoint()->GetKineticEnergy();
   G4double postStepKineticEnergy = step->GetPostStepPoint()->GetKineticEnergy();
 
   // Check for NaN energy
@@ -103,7 +104,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   
   if(altitudeAddress > 0 && altitudeAddress < 1000) 
   {
-    const G4double energyDeposition = step->GetPreStepPoint()->GetKineticEnergy() - postStepKineticEnergy;
+    G4double energyDeposition = preStepKineticEnergy - postStepKineticEnergy;
     LogEnergy(altitudeAddress, energyDeposition/keV); // Threadlocking occurs inside LogEnergy
   }
 
@@ -133,5 +134,5 @@ void SteppingAction::LogEnergy(G4int histogramAddress, G4double energy)
 {
   // This is in a different function so the threadlock isn't in scope for all of every step
   G4AutoLock lock(&aMutex); // Might not be necessary with thread-specific files
-  fRunAction->fEnergyDepositionHistogram->AddCountToBin(histogramAddress, energy/keV);
+  fRunAction->fEnergyDepositionHistogram->AddCountToBin(histogramAddress, energy);
 }
