@@ -110,16 +110,13 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   double By = std::cos(geomagLat_radians);
   double Bz = -2.0 * std::sin(geomagLat_radians);
 
-  double momentumNorm = pow(r->xDir, 2) + pow(r->yDir, 2) + pow(r->zDir, 2);
-  double Bnorm = pow(Bx, 2) + pow(By, 2) + pow(Bz, 2);
+  double momentumNorm = std::sqrt(pow(r->xDir, 2) + pow(r->yDir, 2) + pow(r->zDir, 2));
+  double Bnorm = std::sqrt(pow(Bx, 2) + pow(By, 2) + pow(Bz, 2));
   double dotProd = (r->xDir * Bx) + (r->yDir * By) + (r->zDir * Bz);
   double generatedPitchAngle_deg = std::acos(dotProd / (momentumNorm * Bnorm)) * 180/3.14159265358979;
 
   if( abs(generatedPitchAngle_deg - fBeamPitchAngle) > 1){
-    G4cout << "** ERROR: Primary generated with pitch angle >1º different than user-specified pitch angle. You should never see this. Please email julia.claxton@colorado.edu with this error and the conditions that produced it." <<
-    G4endl << "    generatedPitchAngle_deg: " << generatedPitchAngle_deg <<
-    G4endl << "    fBeamPitchAngle: " << fBeamPitchAngle <<
-    G4endl;
+    G4cout << "** ERROR: Primary generated with pitch angle >1º different than user-specified pitch angle. You should never see this. Please email julia.claxton@colorado.edu with this error and the conditions that produced it." << G4endl;
     throw;
   }
 
