@@ -1,7 +1,7 @@
 using Statistics, LinearAlgebra
 using Glob
 
-number_of_particles = 100 #Int(1e5)  # Number of particles to input
+number_of_particles = 1000  # Number of particles to input
 
 input_particle = "e-"       # e- = electrons, proton = protons, gamma = photons
 
@@ -40,9 +40,9 @@ for E in energies_to_simulate
     #SBATCH --job-name G4EPP_$(job_name)
     #SBATCH --nodes 1
     #SBATCH --ntasks-per-node 40
-    #SBATCH --time 05:00:00
+    #SBATCH --time 07:00:00
     #SBATCH --output /projects/jucl6426/G4EPP/results/batch/log_$(job_name).out
-    #SBATCH --qos=preemptable
+    #SBATCH --qos=blanca-lair,preemptable
     #SBATCH --no-requeue
     #SBATCH --mail-type=ALL
     #SBATCH --mail-user=jucl6426@colorado.edu
@@ -52,8 +52,8 @@ for E in energies_to_simulate
     ./G4EPP $(number_of_particles) e- $(E) $(α)
 
     # Copy results to safe folder
-    cp -r /projects/jucl6426/G4EPP/build/results/input_450.0km_record_450.0km/backscatter_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results/batch
-    cp -r /projects/jucl6426/G4EPP/build/results/input_450.0km_record_450.0km/energy_deposition_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results/batch
+    cp -r /projects/jucl6426/G4EPP/build/results/input_450.0km_record_450.0km/backscatter_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
+    cp -r /projects/jucl6426/G4EPP/build/results/input_450.0km_record_450.0km/energy_deposition_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
     """
     )
     close(file)
