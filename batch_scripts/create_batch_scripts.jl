@@ -1,30 +1,30 @@
 using Statistics, LinearAlgebra
 using Glob
 
-number_of_particles = 1000  # Number of particles to input
+number_of_particles = 100_000  # Number of particles to input
 
-input_particle = "e-"       # e- = electrons, proton = protons, gamma = photons
+input_particle = "e-"          # "e-" = electrons, "proton" = protons, "gamma" = photons
 
-energy_kev_min = 10         # Minimum beam energy, keV
-energy_kev_max = 10_000     # Maximum beam energy, keV
-energy_nbeams = 2           # Number of log-spaced beams to place between minimum and maximum energy
+energy_kev_min = 10            # Minimum beam energy, keV
+energy_kev_max = 10_000        # Maximum beam energy, keV
+energy_nbeams = 10             # Number of log-spaced beams to place between minimum and maximum energy
 
-pitch_angle_deg_min = 0     # Minimum beam pitch angle, deg
-pitch_angle_deg_max = 90    # Maximum beam pitch angle, deg
-pitch_angle_nbeams = 2      # Number of linear-spaced beams to place between minimum and maximum pitch angle
+pitch_angle_deg_min = 0        # Minimum beam pitch angle, deg
+pitch_angle_deg_max = 90       # Maximum beam pitch angle, deg
+pitch_angle_nbeams = 10        # Number of linear-spaced beams to place between minimum and maximum pitch angle
 
 # Create energy and pitch angle lists
 energies_to_simulate = 10.0 .^ LinRange(log10(energy_kev_min), log10(energy_kev_max), energy_nbeams)
 pitch_angles_to_simulate = LinRange(pitch_angle_deg_min, pitch_angle_deg_max, pitch_angle_nbeams)
+
+# TODO delete this. this is just for ELFIN purposes
+energies_to_simulate = [63.245540618896484, 97.97958374023438, 138.5640869140625, 183.30308532714844, 238.11758422851562, 305.20489501953125, 385.16229248046875, 520.48046875, 752.9939575195312, 1081.665283203125, 1529.7060546875, 2121.3203125, 2893.960205078125, 3728.6064453125, 4906.12060546875, 6500.0]
 
 # Round energies and pitch angles to nearest integer for reduced filename verbosity. If you have sub-integer resolution,
 # this will eat that, so if you're doing < 1º pitch angle resolution or < 1 keV energy resolution, remove this block. Note
 # that removal of this block may result in very long output filenames.
 energies_to_simulate = round.(energies_to_simulate)
 pitch_angles_to_simulate = round.(pitch_angles_to_simulate)
-
-energies_to_simulate = [10.0, 10000.0]
-pitch_angles_to_simulate = [90.0]
 
 # Create shell scripts
 rm.(glob("*deg.sh", @__DIR__))
