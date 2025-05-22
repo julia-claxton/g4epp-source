@@ -39,7 +39,8 @@ for E in energies_to_simulate
     #SBATCH --ntasks-per-node 40
     #SBATCH --time 05:00:00
     #SBATCH --output /projects/jucl6426/G4EPP/results/batch/log_$(job_name).out
-    #SBATCH --qos=blanca-lair
+    #SBATCH --qos=preemptable
+    #SBATCH --no-requeue
     #SBATCH --mail-type=ALL
     #SBATCH --mail-user=jucl6426@colorado.edu
 
