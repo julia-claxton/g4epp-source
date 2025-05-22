@@ -42,7 +42,7 @@ for E in energies_to_simulate
     #SBATCH --ntasks-per-node 40
     #SBATCH --time 07:00:00
     #SBATCH --output /projects/jucl6426/G4EPP/results/log_$(job_name).out
-    #SBATCH --qos=preemptable,blanca-lair
+    #SBATCH --qos=preemptable
     #SBATCH --exclude=bhpc-c5-u7-20,bhpc-c5-u7-21,bhpc-c5-u7-22,bhpc-c5-u7-23
     #SBATCH --no-requeue
     #SBATCH --mail-type=ALL
