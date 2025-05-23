@@ -132,7 +132,8 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 
 void SteppingAction::LogEnergy(G4int histogramAddress, G4double energy)
 {
-  // This is in a different function so the threadlock isn't in scope for all of every step
+  // This is in a different function so the threadlock isn't in scope for all of every step.
+  // Lock unlocks when it goes out of scope
   G4AutoLock lock(&aMutex); // Might not be necessary with thread-specific files
   fRunAction->fEnergyDepositionHistogram->AddCountToBin(histogramAddress, energy);
 }
