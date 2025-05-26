@@ -325,6 +325,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 		  checkOverlaps
     );
   }
+  
   // Always return the physical World
   return physWorld;
 }

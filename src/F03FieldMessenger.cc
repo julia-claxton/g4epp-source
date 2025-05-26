@@ -100,10 +100,6 @@ void F03FieldMessenger::SetNewValue( G4UIcommand* command, G4String newValue)
   if( command == fMagFieldCmd )
   {
     fEMfieldSetup->SetFieldValue(fMagFieldCmd->GetNewDoubleValue(newValue));
-    // Check the value
-    /*G4cout << "Set field value to " <<
-      fEMfieldSetup->GetConstantFieldValue() / gauss << " Gauss " << G4endl;
-  */
   }
   if( command == fMinStepCmd )
     fEMfieldSetup->SetMinStep(fMinStepCmd->GetNewDoubleValue(newValue));

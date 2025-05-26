@@ -69,6 +69,7 @@ class RunAction : public G4UserRunAction
     myHistogram* fEnergyDepositionHistogram; 
     std::vector<std::string> fBackscatteredParticleNames;
     std::vector<double> fBackscatteredEnergieskeV;
+    std::vector<double> fBackscatteredPitchAnglesDeg;
     std::vector<std::array<double,3>> fBackscatterDirections;
     std::vector<std::array<double,3>> fBackscatterPositions;
 

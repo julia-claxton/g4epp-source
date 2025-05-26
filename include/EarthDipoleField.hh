@@ -17,7 +17,10 @@ public:
 		                         G4double *Bfield) const override;
 private:
   G4double fDipoleMoment;
-  G4double fGeomagLatitude;
+  G4double fMLAT_degrees;
+  G4double fRe;
+  G4double fu0;
+  G4double fpi;
   G4double fEarthRadius; 
 
 };

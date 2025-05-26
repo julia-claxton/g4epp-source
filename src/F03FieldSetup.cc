@@ -102,15 +102,9 @@ void F03FieldSetup::UpdateField()
   // It must be possible to call 'again' - e.g. to choose an alternative stepper
   // has been chosen, or in case other changes have been made.
 
-  // 1. First clean up previous state.
+  // 1. Clean up previous state
   delete fChordFinder;
   fChordFinder= nullptr;
-
-  /*
-  // Excess verbosity
-  G4cout << "F03FieldSetup::UpdateField > The minimal step is equal to " << fMinStep/mm <<" mm"<<G4endl;
-  G4cout<< "                              Stepper Type chosen = " << fStepperType << G4endl;
-  */
 
   // 2. Create the steppers ( Note: this also deletes the previous ones. )
   SetStepper();
@@ -179,13 +173,11 @@ void F03FieldSetup::SetStepper()
   }
 }
 
-
 void F03FieldSetup::SetFieldValue(G4double fieldStrength)
 {
   G4ThreeVector fieldSetVec(0.0, 0.0, fieldStrength);
   SetFieldValue( fieldSetVec );
 }
-
 
 void F03FieldSetup::SetFieldValue(G4ThreeVector fieldVector)
 {
@@ -212,7 +204,6 @@ void F03FieldSetup::SetFieldValue(G4ThreeVector fieldVector)
   GetGlobalFieldManager()->SetDetectorField(fMagneticField);
   fEquation->SetFieldObj( fMagneticField );
 }
-
 
 G4FieldManager* F03FieldSetup::GetGlobalFieldManager(){
   return G4TransportationManager::GetTransportationManager()->GetFieldManager();

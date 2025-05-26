@@ -40,6 +40,9 @@
 #include "G4SystemOfUnits.hh"
 #include "SteppingActionMessenger.hh"
 #include "G4AutoLock.hh"
+#include "G4TransportationManager.hh"
+#include "G4FieldManager.hh"
+#include "G4MagneticField.hh"
 
 // Initialize autolock for multiple threads writing into a single file
 namespace{ G4Mutex aMutex=G4MUTEX_INITIALIZER; } 
@@ -101,7 +104,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // Add energy deposition to vector owned by RunAction, which is written to a results file at the end of each thread's simulation run  
   G4double zPos = position.z(); // Particle altitude in world coordinates
   G4int altitudeAddress = std::floor(500.0 + zPos/km); // Index to write to. Equal to altitude above sea level in km, to nearest whole km
-  
+
   if(altitudeAddress > 0 && altitudeAddress < 1000) 
   {
     G4double energyDeposition = preStepKineticEnergy - postStepKineticEnergy;
@@ -116,12 +119,24 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // We subtract 500 from the collection altitude because +500.0 km above sea level ==> z = 0.0 in world coordinates
   if( (position.z()/km > fCollectionAltitude-500.0) && (momentumDirection.z() > 0) ) 
   {
-    // Get particle energy
-    const G4double preStepEnergy =  step->GetPreStepPoint()->GetKineticEnergy();
+    // Calculate particle pitch angle
+    G4double spacetimePoint[4] = {position.x(), position.y(), position.z(), 0};
+    G4double emComponents[6];
+
+    G4FieldManager* fieldManager = G4TransportationManager::GetTransportationManager()->GetFieldManager();
+    fieldManager->GetDetectorField()->GetFieldValue(spacetimePoint, emComponents);
+    G4double B[3] = {emComponents[0], emComponents[1], emComponents[2]};
+    G4double normB = std::sqrt(B[0]*B[0] + B[1]*B[1] + B[2]*B[2]);
+
+    G4double normMomentum = std::sqrt(pow(momentumDirection.x(), 2) + pow(momentumDirection.y(), 2) + pow(momentumDirection.z(), 2));
+    G4double dotProd = (momentumDirection.x() * B[0]) + (momentumDirection.y() * B[1]) + (momentumDirection.z() * B[2]);
+
+    G4double pitchAngleDeg = std::acos(dotProd / (normMomentum * normB)) * 180/3.14159265358979;
 
     // Write particle parameters to memory
     fRunAction->fBackscatteredParticleNames.push_back(particleName);
-    fRunAction->fBackscatteredEnergieskeV.push_back(preStepEnergy/keV);
+    fRunAction->fBackscatteredEnergieskeV.push_back(preStepKineticEnergy/keV);
+    fRunAction->fBackscatteredPitchAnglesDeg.push_back(pitchAngleDeg);
     fRunAction->fBackscatterDirections.push_back({momentumDirection.x(), momentumDirection.y(), momentumDirection.z()});
     fRunAction->fBackscatterPositions.push_back({position.x()/m, position.y()/m, (position.z()/m) + 500000.0}); // Shift z-axis so we are writing altitude above sea level to file rather than the world coordinates
 

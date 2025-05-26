@@ -42,6 +42,9 @@
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
 #include "PrimaryGeneratorMessenger.hh"
+#include "G4TransportationManager.hh"
+#include "G4FieldManager.hh"
+#include "G4MagneticField.hh"
 #include <math.h>
 
 
@@ -53,7 +56,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fBeamPitchAngle(40.),
   fInitialParticleAlt(450.0),
   fPI(3.14159265359),
-  fRad2Deg(3.14159265359 / 180.0),
+  fRad2Deg(180.0 / 3.14159265359),
   fSourceType("e-")
 {
   fPrimaryMessenger = new PrimaryGeneratorMessenger(this);
@@ -75,53 +78,57 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   
   // Set up container for particle properties
   ParticleSample* r = new ParticleSample();
- 
-  // Start the particle position on a random uniform sampling of a circular area
-  G4double theta = G4UniformRand() * 2. * 3.1415926; // u ~ Unif[0, 2 pi)
-  G4double radialPosition = G4UniformRand();  // [0, 1)
-  G4double diskRadius = 400.*km;
 
-  r->xPos = diskRadius * std::sqrt(radialPosition) * std::cos(theta);
-  r->yPos = diskRadius * std::sqrt(radialPosition) * std::sin(theta);
+  // Set particle energy
+  r->energy = fBeamEnergy * keV;
+ 
+  // Start the particle position on a random uniform sample of the y axis.
+  G4double maxGenerationDistance = 400.0 *km;
+  G4double fractionDistance = 2*G4UniformRand()-1;  // [-1, 1)
+
+  // Generate all primaries on the y-axis to avoid off-axis B-field components, which severely complicates primary generation (B-field lies in the y-z plane when x = 0)
+  r->xPos = 0; 
+  r->yPos = maxGenerationDistance * fractionDistance;
   r->zPos = (fInitialParticleAlt - 500.0)*km; // Subtraction due to coordinate axis location in middle of world volume
 
   // Particle velocity random variables. Starts electrons with gyromotion about field line at a given pitch angle
-  G4double pitchAngle = fBeamPitchAngle * fRad2Deg; // Convert degrees to radians
+  G4double pitchAngle = fBeamPitchAngle * 3.14159265359 / 180.0; // Convert degrees to radians
   G4double gyroPhase  = G4UniformRand() * 2. * fPI;
 
-  // Initial momentum direction of particles in the frame where B points with -z
-  double x0 = std::sin(pitchAngle)*std::cos(gyroPhase);
-  double y0 = std::sin(pitchAngle)*std::sin(gyroPhase);
-  double z0 = -std::cos(pitchAngle);
+  // Initial momentum direction of particles in local frame of magnetic field (i.e B is parallel to -z)
+  double vx0 = std::sin(pitchAngle)*std::cos(gyroPhase);
+  double vy0 = std::sin(pitchAngle)*std::sin(gyroPhase);
+  double vz0 = -std::cos(pitchAngle);
   
   // Now we need to rotate out of inclined B-field frame into the world frame.
-  // We will have B lying in the y-z plane, meaning we need to rotate about the
-  // x-axis to get into the world coordinates.
-  // Poker Flats is at 65.77 geomagnetic latitude, which has 77.318 deg magnetic 
-  // tilt angle => we want to tilt our coordinate system +12.682 deg about x.
-  G4double tilt_angle = 12.682 * fRad2Deg; // TODO dip angle will vary based on geomaglat
-  r->xDir = x0;
-  r->yDir = (std::cos(tilt_angle) * y0) - (std::sin(tilt_angle) * z0);
-  r->zDir = (std::sin(tilt_angle) * y0) + (std::cos(tilt_angle) * z0);
+  // B lies in the y-z plane, meaning we need to rotate about the x-axis to get into the world coordinates.
+  
+  // Get B vector
+  G4double spacetimePoint[4] = {r->xPos, r->xPos, r->zPos, 0};
+  G4double emComponents[6];
+
+  G4FieldManager* fieldManager = G4TransportationManager::GetTransportationManager()->GetFieldManager();
+  fieldManager->GetDetectorField()->GetFieldValue(spacetimePoint, emComponents);
+  G4double B[3] = {emComponents[0], emComponents[1], emComponents[2]};
+  G4double normB = std::sqrt(B[0]*B[0] + B[1]*B[1] + B[2]*B[2]);
+  
+  // Get necessary tilt angle
+  G4double tilt_angle_rad = std::acos(std::abs(B[2]/normB));
+
+  // Rotate coordinates into world frame
+  r->xDir = vx0;
+  r->yDir = (std::cos(tilt_angle_rad) * vy0) - (std::sin(tilt_angle_rad) * vz0);
+  r->zDir = (std::sin(tilt_angle_rad) * vy0) + (std::cos(tilt_angle_rad) * vz0);
 
   // Verify that pitch angle generation is correct
-  double geomagLat_radians = 65.77 * 3.1415926 / 180.0;
-  double Bx = 0;
-  double By = std::cos(geomagLat_radians);
-  double Bz = -2.0 * std::sin(geomagLat_radians);
-
-  double momentumNorm = std::sqrt(pow(r->xDir, 2) + pow(r->yDir, 2) + pow(r->zDir, 2));
-  double Bnorm = std::sqrt(pow(Bx, 2) + pow(By, 2) + pow(Bz, 2));
-  double dotProd = (r->xDir * Bx) + (r->yDir * By) + (r->zDir * Bz);
-  double generatedPitchAngle_deg = std::acos(dotProd / (momentumNorm * Bnorm)) * 180/3.14159265358979;
+  double normMomentum = std::sqrt(pow(r->xDir, 2) + pow(r->yDir, 2) + pow(r->zDir, 2));
+  double dotProd = (r->xDir * B[0]) + (r->yDir * B[1]) + (r->zDir * B[2]);
+  double generatedPitchAngle_deg = std::acos(dotProd / (normMomentum * normB)) * 180/3.14159265358979;
 
   if( abs(generatedPitchAngle_deg - fBeamPitchAngle) > 1){
     G4cout << "** ERROR: Primary generated with pitch angle >1º different than user-specified pitch angle. You should never see this. Please email julia.claxton@colorado.edu with this error and the conditions that produced it." << G4endl;
     throw;
   }
-
-  // Set energy
-  r->energy = fBeamEnergy * keV;
 
   // Communicate to particle gun
   fParticleGun->SetParticlePosition(G4ThreeVector(r->xPos, r->yPos, r->zPos)); 
