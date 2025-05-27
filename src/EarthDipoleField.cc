@@ -1,6 +1,8 @@
 
 
 #include "EarthDipoleField.hh"
+#include <numeric>
+#include <functional>
 
 /* The following class calculates the Earth's magnetic field strength 
  * and direction according to a tilted dipole model. This class inherits
@@ -14,8 +16,14 @@
  * Grant Berland
  */
 
-#include <numeric>
-#include <functional>
+
+
+#include <chrono>
+using namespace std::chrono;
+#include <iostream>
+#include <unistd.h>
+
+
 
 EarthDipoleField::EarthDipoleField()
 : G4MagneticField(),
@@ -54,7 +62,7 @@ void EarthDipoleField::GetFieldValue(const G4double Point[4],G4double *Bfield) c
   // Get each component of field strength
   G4double B[3];
   for(int i = 0; i < 3; i++){
-    B[i] = fu0/(4*fpi) * ( ((3*dotProd*r[i])/pow(rMag, 5)) - (magMoment[i]/pow(rMag, 3)) );
+    B[i] = (fu0/(4*fpi)) * ( ((3*dotProd*r[i])/pow(rMag, 5)) - (magMoment[i]/pow(rMag, 3)) );
     B[i] = B[i] * tesla;
   }
 

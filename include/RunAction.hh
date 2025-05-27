@@ -57,7 +57,7 @@ class RunAction : public G4UserRunAction
     std::pair<G4Transportation*, G4CoupledTransportation*> findTransportation(const G4ParticleDefinition * particleDef, bool reportError= true); // Helper method to find the Transportation process for a particle type 
     void writeBackscatterToFile(std::string filename);
 
-  public: // TODO delete or don't set these in the constructor
+  public:
     void     SetNumberOfTrials( G4int val ){fNumberOfTrials  = val;}
     void     SetWarningEnergy( double val ){fWarningEnergy   = val;}
     void     SetImportantEnergy( double val ){fImportantEnergy = val;}   
