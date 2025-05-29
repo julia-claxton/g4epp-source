@@ -82,16 +82,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // Set particle energy
   r->energy = fBeamEnergy * keV;
  
-  // Start the particle position on a random uniform sample of the y axis.
-  G4double maxGenerationDistance = 400.0 *km;
-  G4double fractionDistance = 2*G4UniformRand()-1;  // [-1, 1)
-
-  // Generate all primaries on the y-axis to avoid off-axis B-field components, which severely complicates primary generation (B-field lies in the y-z plane when x = 0)
+  // Set starting location
   r->xPos = 0; 
-  r->yPos = maxGenerationDistance * fractionDistance;
+  r->yPos = 0;
   r->zPos = (fInitialParticleAlt - 500.0)*km; // Subtraction due to coordinate axis location in middle of world volume
 
-  // Particle velocity random variables. Starts electrons with gyromotion about field line at a given pitch angle
+  // Set velocity. Starts electrons with gyromotion about field line at a given pitch angle.
   G4double pitchAngle = fBeamPitchAngle * 3.14159265359 / 180.0; // Convert degrees to radians
   G4double gyroPhase  = G4UniformRand() * 2. * fPI;
 

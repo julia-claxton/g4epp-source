@@ -40,7 +40,7 @@ for E in energies_to_simulate
     #SBATCH --job-name G4EPP_$(job_name)
     #SBATCH --nodes 1
     #SBATCH --ntasks-per-node 40
-    #SBATCH --time 23:00:00
+    #SBATCH --time 24:00:00
     #SBATCH --output /projects/jucl6426/G4EPP/results/log_$(job_name).out
     #SBATCH --qos=preemptable
     #SBATCH --exclude=bhpc-c5-u7-20,bhpc-c5-u7-21,bhpc-c5-u7-22,bhpc-c5-u7-23
@@ -56,8 +56,8 @@ for E in energies_to_simulate
     ./G4EPP $(number_of_particles) e- $(E) $(α)
 
     # Copy results to safe folder
-    cp -r /projects/jucl6426/G4EPP/build/results/input_450.0km_record_450.0km/backscatter_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
-    cp -r /projects/jucl6426/G4EPP/build/results/input_450.0km_record_450.0km/energy_deposition_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
+    cp -r /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/backscatter_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
+    cp -r /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/energy_deposition_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
     """
     )
     close(file)

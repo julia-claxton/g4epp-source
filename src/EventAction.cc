@@ -34,8 +34,7 @@
 #include "G4Event.hh"
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
-
-
+#include "G4Run.hh"
 
 EventAction::EventAction(RunAction* runAction)
 : G4UserEventAction(),
@@ -51,11 +50,10 @@ EventAction::~EventAction()
 
 void EventAction::BeginOfEventAction(const G4Event*)
 {
-
 }
 
 
-void EventAction::EndOfEventAction(const G4Event*)
+void EventAction::EndOfEventAction(const G4Event* event)
 {
 }
 
