@@ -56,8 +56,8 @@ for E in energies_to_simulate
     ./G4EPP $(number_of_particles) e- $(E) $(α)
 
     # Copy results to safe folder
-    cp -r /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/backscatter_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
-    cp -r /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/energy_deposition_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
+    cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/backscatter_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
+    cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/energy_deposition_electron_input_$(E)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
     """
     )
     close(file)
