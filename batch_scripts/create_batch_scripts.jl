@@ -9,9 +9,9 @@ energy_kev_min = 10            # Minimum beam energy, keV
 energy_kev_max = 10_000        # Maximum beam energy, keV
 energy_nbeams = 10             # Number of log-spaced beams to place between minimum and maximum energy
 
-pitch_angle_deg_min = 0        # Minimum beam pitch angle, deg
-pitch_angle_deg_max = 90       # Maximum beam pitch angle, deg
-pitch_angle_nbeams = 10        # Number of linear-spaced beams to place between minimum and maximum pitch angle
+pitch_angle_deg_min = 61        # Minimum beam pitch angle, deg
+pitch_angle_deg_max = 69       # Maximum beam pitch angle, deg
+pitch_angle_nbeams = 9        # Number of linear-spaced beams to place between minimum and maximum pitch angle
 
 # Create energy and pitch angle lists
 energies_to_simulate = 10.0 .^ LinRange(log10(energy_kev_min), log10(energy_kev_max), energy_nbeams)
