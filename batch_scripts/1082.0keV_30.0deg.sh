@@ -3,9 +3,9 @@
 #SBATCH --job-name G4EPP_1082.0keV_30.0deg
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 40
-#SBATCH --time 5-00:00:00
+#SBATCH --time 1-00:00:00
 #SBATCH --output /projects/jucl6426/G4EPP/results/log_1082.0keV_30.0deg.out
-#SBATCH --qos=blanca-lair
+#SBATCH --qos=preemptable
 #SBATCH --exclude=bhpc-c5-u7-20,bhpc-c5-u7-21,bhpc-c5-u7-22,bhpc-c5-u7-23
 #SBATCH --no-requeue
 #SBATCH --mail-type=ALL
