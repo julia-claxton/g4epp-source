@@ -32,6 +32,13 @@ rm.(glob("*deg.sh", @__DIR__))
 for E in energies_to_simulate
   for α in pitch_angles_to_simulate
     job_name = "$(E)keV_$(α)deg"
+    qos = "preemptable"
+    time_limit = "1-00:00:00"
+
+    if (α > 65) && (E < 400)
+      qos = "blanca-lair"
+      time_limit = "7-00:00:00"
+    end
 
     file = open("$(@__DIR__)/$(job_name).sh", "w")
     println(file,
@@ -41,10 +48,10 @@ for E in energies_to_simulate
     #SBATCH --job-name G4EPP_$(job_name)
     #SBATCH --nodes 1
     #SBATCH --ntasks-per-node 40
-    #SBATCH --time 1-00:00:00
+    #SBATCH --time $(time_limit)
     #SBATCH --output /projects/jucl6426/G4EPP/results/log_$(job_name).out
-    #SBATCH --qos=preemptable
-    #SBATCH --exclude=bhpc-c5-u7-20,bhpc-c5-u7-21,bhpc-c5-u7-22,bhpc-c5-u7-23
+    #SBATCH --qos=$(qos)
+    #SBATCH --exclude=bhpc-c5-u7-22,bhpc-c5-u7-23
     #SBATCH --no-requeue
     #SBATCH --mail-type=ALL
     #SBATCH --mail-user=jucl6426@colorado.edu

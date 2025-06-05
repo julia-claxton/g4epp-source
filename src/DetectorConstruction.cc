@@ -98,7 +98,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double world_sizeZ  = 1000.0*km;
 
   G4Tubs* solidWorld = new G4Tubs(
-    "World",          //its name
+    "World",          // its name
     0.,  			        // inner radius
     world_sizeXY,  	  // outer radius
     0.5*world_sizeZ,  // z half length
