@@ -45,7 +45,7 @@ for E in energies_to_simulate
     qos = "preemptable"
     time_limit = "1-00:00:00"
 
-    if true
+    if E < 200
       qos = "blanca-lair"
       time_limit = "7-00:00:00"
     end
