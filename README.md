@@ -2,11 +2,11 @@
 
 Forked from Grant Berland. Readme TBD until code is finished.
 
-need to edit `run_single_beam.mac` with your build directory. all user-editable simulation parameters also live there so take a look before running
+need to edit `EDIT_THIS_FILE.mac` with your build directory. all user-editable simulation parameters also live there so take a look before running
 
 How to run executable:
 
-`./G4EPP <particle> <energy> <pitch angle>`
+`./G4EPP <number of particles> <particle> <energy> <pitch angle>`
 
 particle:
 * e- = electrons
