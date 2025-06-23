@@ -18,7 +18,7 @@ energies_to_simulate = 10.0 .^ LinRange(log10(energy_kev_min), log10(energy_kev_
 pitch_angles_to_simulate = LinRange(pitch_angle_deg_min, pitch_angle_deg_max, pitch_angle_nbeams)
 
 # TODO delete this. this is just for ELFIN purposes
-pitch_angles_to_simulate = float.([0:10:60..., 61:1:69..., 70:10:90...])
+pitch_angles_to_simulate = float.([0:5:60..., 61:1:69..., 70:5:90...])
 energies_to_simulate = [63.245540618896484, 97.97958374023438, 138.5640869140625, 183.30308532714844, 238.11758422851562, 305.20489501953125, 385.16229248046875, 520.48046875, 752.9939575195312, 1081.665283203125, 1529.7060546875, 2121.3203125, 2893.960205078125, 3728.6064453125, 4906.12060546875, 6500.0]
 
 # Round energies and pitch angles to nearest integer for reduced filename verbosity. If you have sub-integer resolution,
