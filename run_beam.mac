@@ -34,7 +34,10 @@
     /field/setStepperType 10
 
 # Bremsstrahlung splitting
-    /process/em/setSecBiasing eBrem world 100 100 MeV
+    /process/em/setSecBiasing false
+    # Use
+    #   /process/em/setSecBiasing eBrem world 100 100 MeV
+    # for 100x increase in Bremsstrahlung for photons produced under 100 MeV
 
 # Set result filepaths
     /control/shell if [ ! -d {G4EPP_BUILD_DIR} ]; then echo "** ERROR: Specified build directory {G4EPP_BUILD_DIR} does not exist"; killall G4EPP; fi
