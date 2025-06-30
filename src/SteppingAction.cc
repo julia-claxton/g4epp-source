@@ -135,7 +135,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 
     // Write particle parameters to memory
     fRunAction->fBackscatteredParticleNames.push_back(particleName);
-    fRunAction->fBackscatteredEnergieskeV.push_back(preStepKineticEnergy/keV);
+    fRunAction->fBackscatteredEnergieskeV.push_back(postStepKineticEnergy/keV);
     fRunAction->fBackscatteredPitchAnglesDeg.push_back(pitchAngleDeg);
     fRunAction->fBackscatterDirections.push_back({momentumDirection.x(), momentumDirection.y(), momentumDirection.z()});
     fRunAction->fBackscatterPositions.push_back({position.x()/m, position.y()/m, (position.z()/m) + 500000.0}); // Shift z-axis so we are writing altitude above sea level to file rather than the world coordinates
