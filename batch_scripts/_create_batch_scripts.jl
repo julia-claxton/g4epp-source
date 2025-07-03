@@ -36,16 +36,19 @@ skipped = 0
 rm.(glob("*deg.sh", @__DIR__))
 for E in energies_to_simulate
   for α in pitch_angles_to_simulate
+
+    #=
     if (E, α) ∈ collect(zip(energies_to_remove, pitch_angles_to_remove))
       global skipped += 1
       continue
     end
+    =#
 
     job_name = "$(E)keV_$(α)deg"
     qos = "preemptable"
     time_limit = "1-00:00:00"
 
-    if true
+    if (E < 300) && (55 < α < 75)
       qos = "blanca-lair"
       time_limit = "7-00:00:00"
     end
@@ -62,7 +65,7 @@ for E in energies_to_simulate
     #SBATCH --output /projects/jucl6426/G4EPP/results/log_$(job_name).out
     #SBATCH --qos=$(qos)
     #SBATCH --exclude=bhpc-c5-u7-22,bhpc-c5-u7-23
-    #SBATCH --no-requeue
+    #SBATCH --requeue
     #SBATCH --mail-type=ALL
     #SBATCH --mail-user=jucl6426@colorado.edu
 
