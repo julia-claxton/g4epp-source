@@ -105,6 +105,12 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   G4double zPos = position.z(); // Particle altitude in world coordinates
   G4int altitudeAddress = std::floor(500.0 + zPos/km); // Index to write to. Equal to altitude above sea level in km, to nearest whole km
 
+  // Kill particles that go below ground level
+  if(500.0 + zPos/km < 0)
+  {
+    track->SetTrackStatus(fStopAndKill);
+  }
+
   if(altitudeAddress > 0 && altitudeAddress < 1000) 
   {
     G4double energyDeposition = step->GetTotalEnergyDeposit();

@@ -37,21 +37,23 @@ rm.(glob("*deg.sh", @__DIR__))
 for E in energies_to_simulate
   for α in pitch_angles_to_simulate
 
-    #=
+
     if (E, α) ∈ collect(zip(energies_to_remove, pitch_angles_to_remove))
       global skipped += 1
       continue
     end
-    =#
+
 
     job_name = "$(E)keV_$(α)deg"
-    qos = "preemptable"
-    time_limit = "1-00:00:00"
+    qos = "blanca-lair" # "preemptable"
+    time_limit = "7-00:00:00" # "1-00:00:00"
 
+    #=
     if (E < 300) && (55 < α < 75)
       qos = "blanca-lair"
       time_limit = "7-00:00:00"
     end
+    =#
 
     file = open("$(@__DIR__)/$(job_name).sh", "w")
     println(file,
