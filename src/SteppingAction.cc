@@ -70,6 +70,15 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   G4double preStepKineticEnergy = step->GetPreStepPoint()->GetKineticEnergy();
   G4double postStepKineticEnergy = step->GetPostStepPoint()->GetKineticEnergy();
 
+  G4String creator = track->GetCreatorProcess() ? track->GetCreatorProcess()->GetProcessName() : "primary";
+  G4double weight = track->GetWeight();
+
+  if( (parentTrack->GetWeight() != 1) && (weight == 1) ){
+    G4cout << "Weight Inheritance Error! Parent = " << parentTrack->GetWeight() << ", child = " << weight << G4endl;
+  }
+  // FIXME. potential energy overcounting due to unweighted e- created by brem gamma
+
+
   // Check for NaN energy
   if(std::isnan(postStepKineticEnergy))
   {  
@@ -113,7 +122,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 
   if(altitudeAddress > 0 && altitudeAddress < 1000) 
   {
-    G4double energyDeposition = step->GetTotalEnergyDeposit();
+    G4double energyDeposition = step->GetTotalEnergyDeposit() * track->GetWeight();
     LogEnergy(altitudeAddress, energyDeposition/keV); // Threadlocking occurs inside LogEnergy
   }
 
