@@ -58,14 +58,6 @@ SteppingAction::SteppingAction(EventAction* eventAction, RunAction* RuAct)
   fSteppingMessenger = new SteppingActionMessenger(this);
 }
 
-
-G4double trackedEnergy = 0;
-G4double eEnergy = 0;
-G4double pEnergy = 0;
-
-
-
-
 SteppingAction::~SteppingAction(){delete fSteppingMessenger;}
 
 void SteppingAction::UserSteppingAction(const G4Step* step)
@@ -78,34 +70,6 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   G4double preStepKineticEnergy = step->GetPreStepPoint()->GetKineticEnergy();
   G4double postStepKineticEnergy = step->GetPostStepPoint()->GetKineticEnergy();
   G4double trackWeight = track->GetWeight();
-
-
-  if( trackWeight == 1 ){
-    pEnergy += step->GetTotalEnergyDeposit() * trackWeight / keV;
-  }
-  else{
-    eEnergy += step->GetTotalEnergyDeposit() * trackWeight / keV;
-  }
-
-  trackedEnergy += step->GetTotalEnergyDeposit() * trackWeight / keV;
-  G4cout 
-    << std::round(trackedEnergy*100)/100 << " keV\t" 
-    << particleName << "\t"
-    << "trackWeight: " << trackWeight << "\t"
-    << std::round(100 * 100 * trackedEnergy / 10000.0)/100 << "\% input\t" 
-    << "Primary = " << std::round(100 * pEnergy / 10000.0) << "\% input\t"
-    << "Secondary = " << std::round(100 * eEnergy / 10000.0) << "\% input\t"
-  << G4endl;
-
-
-  G4String processName = step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
-  if (processName == "eBrem") {
-    G4cout << "eBrem step: " 
-          << "dE = " << (preStepKineticEnergy-postStepKineticEnergy) / keV << " keV, "
-          << "edep = " << step->GetTotalEnergyDeposit() / keV << " keV" 
-          << G4endl;
-  }
-
 
   // Check for NaN energy
   if(std::isnan(postStepKineticEnergy))
@@ -145,7 +109,6 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // Kill particles that go below ground level
   if(500.0 + zPos/km < 0)
   {
-    G4cout << "Below Ground" << G4endl; // TODO TEMP
     track->SetTrackStatus(fStopAndKill);
   }
 
@@ -184,12 +147,8 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     fRunAction->fBackscatterDirections.push_back({momentumDirection.x(), momentumDirection.y(), momentumDirection.z()});
     fRunAction->fBackscatterPositions.push_back({position.x()/m, position.y()/m, (position.z()/m) + 500000.0}); // Shift z-axis so we are writing altitude above sea level to file rather than the world coordinates
 
-
-    // TODO UNDO THIS
-    // trackedEnergy += postStepKineticEnergy * trackWeight / keV;
-
     // Kill particle
-    // track->SetTrackStatus(fStopAndKill);
+    track->SetTrackStatus(fStopAndKill);
   }
 }
 
