@@ -23,33 +23,23 @@ pitch_angles_to_simulate = [0, 30, 70, 80, 90] #LinRange(pitch_angle_deg_min, pi
 energies_to_simulate = round.(energies_to_simulate)
 pitch_angles_to_simulate = round.(pitch_angles_to_simulate)
 
-# Don't simulate if we already have data for a given beam
-include("/Users/luna/Research/G4EPP_2.0/Frontend_Functions.jl")
-energies_to_remove, pitch_angles_to_remove = _get_beam_locations(data_type = "raw")
-skipped = 0
 
 # Create shell scripts
 rm.(glob("*deg.sh", @__DIR__))
+written = 0
+
 for E in energies_to_simulate
   for α in pitch_angles_to_simulate
 
-
-    if (E, α) ∈ collect(zip(energies_to_remove, pitch_angles_to_remove))
-      global skipped += 1
-      continue
-    end
-
-
     job_name = "$(E)keV_$(α)deg"
-    qos = "blanca-lair" # "preemptable"
-    time_limit = "7-00:00:00" # "1-00:00:00"
+    qos = "blanca-lair"
+    time_limit = "7-00:00:00"
 
-    #=
-    if (E < 300) && (55 < α < 75)
-      qos = "blanca-lair"
-      time_limit = "7-00:00:00"
+    if α ∈ [0, 80, 90]
+      qos = "preemptable"
+      time_limit = "1-00:00:00"
     end
-    =#
+
 
     file = open("$(@__DIR__)/$(job_name).sh", "w")
     println(file,
@@ -80,7 +70,9 @@ for E in energies_to_simulate
     """
     )
     close(file)
+
+    global written += 1
   end
 end
 
-println("Skipped $(skipped)/$(length(energies_to_simulate)*length(pitch_angles_to_simulate)) files.")
+println("Wrote $(written) files.")
