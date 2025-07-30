@@ -60,16 +60,6 @@ SteppingAction::SteppingAction(EventAction* eventAction, RunAction* RuAct)
 
 SteppingAction::~SteppingAction(){delete fSteppingMessenger;}
 
-
-
-
-G4double trackedEnergy = 0;
-
-
-
-
-
-
 void SteppingAction::UserSteppingAction(const G4Step* step)
 {
   // ===========================
@@ -112,39 +102,20 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // ===========================
   // Energy Deposition Tracking
   // ===========================
-  // Add energy deposition to vector owned by RunAction, which is written to a results file at the end of each thread's simulation run  
+  // Add energy deposition to histogram owned by RunAction, which is written to a results file at the end of each thread's simulation run  
   G4double zPos = position.z(); // Particle altitude in world coordinates
   
   // Kill particles that go below ground level
-  if(500.0 + zPos/km < 0)
-  {
-    track->SetTrackStatus(fStopAndKill);
-  }
+  if(500.0 + zPos/km < 0){ track->SetTrackStatus(fStopAndKill); }
   
-  G4int altitudeAddress = std::floor(500.0 + zPos/km); // Index to write to. Equal to altitude above sea level in km, to nearest whole km
+  // Log energy deposition
+  G4int altitudeAddress = std::floor(500.0 + zPos/km); // Index to write to. Equal to altitude above sea level in km, to lowest whole km
   if(altitudeAddress > 0 && altitudeAddress < 1000) 
   {
     G4double weightedEnergyDeposition = step->GetTotalEnergyDeposit() * trackWeight;
     LogEnergy(altitudeAddress, weightedEnergyDeposition/keV); // Threadlocking occurs inside LogEnergy
-
-    trackedEnergy += weightedEnergyDeposition/keV;
   }
 
-  if(step->GetPostStepPoint()->GetPhysicalVolume() == nullptr)
-  {
-    G4cout << "EXITED WORLD" << G4endl;
-  }
-
-  G4cout <<
-    track->GetProperTime()/ns << "," <<
-    particleName << "," << 
-    track->GetTrackID() << "," <<
-    track->GetParentID() << "," <<
-    trackWeight << "," <<
-    preStepKineticEnergy/keV << "," <<
-    step->GetTotalEnergyDeposit()/keV << "," <<
-    trackedEnergy << 
-  G4endl;
 
   // ===========================
   // Backscatter Tracking
@@ -174,9 +145,6 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     fRunAction->fBackscatteredPitchAnglesDeg.push_back(pitchAngleDeg);
     fRunAction->fBackscatterDirections.push_back({momentumDirection.x(), momentumDirection.y(), momentumDirection.z()});
     fRunAction->fBackscatterPositions.push_back({position.x()/m, position.y()/m, (position.z()/m) + 500000.0}); // Shift z-axis so we are writing altitude above sea level to file rather than the world coordinates
-
-
-    trackedEnergy += (postStepKineticEnergy*trackWeight)/keV;
 
     // Kill particle
     track->SetTrackStatus(fStopAndKill);
