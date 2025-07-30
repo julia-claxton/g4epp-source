@@ -37,6 +37,7 @@
 # Syntax: /process/em/setSecBiasing processName Region factor energyLimit energyUnit
 # E.g. /process/em/setSecBiasing eBrem world 100 100 MeV
 # for 100x increase of Bremsstrahlung photons under 100 MeV
+/process/em/setSecBiasing eBrem world 2 100 MeV
 
 # Set result filepaths
     /control/shell if [ ! -d {G4EPP_BUILD_DIR} ]; then echo "** ERROR: Specified build directory {G4EPP_BUILD_DIR} does not exist. Set the correct build directory in EDIT_THIS_FILE.mac"; killall G4EPP; fi

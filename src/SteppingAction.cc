@@ -60,6 +60,16 @@ SteppingAction::SteppingAction(EventAction* eventAction, RunAction* RuAct)
 
 SteppingAction::~SteppingAction(){delete fSteppingMessenger;}
 
+
+
+
+G4double trackedEnergy = 0;
+
+
+
+
+
+
 void SteppingAction::UserSteppingAction(const G4Step* step)
 {
   // ===========================
@@ -114,8 +124,22 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 
   if(altitudeAddress > 0 && altitudeAddress < 1000) 
   {
-    G4double energyDeposition = step->GetTotalEnergyDeposit() * track->GetWeight();
-    LogEnergy(altitudeAddress, energyDeposition/keV); // Threadlocking occurs inside LogEnergy
+    G4double weightedEnergyDeposition = step->GetTotalEnergyDeposit() * trackWeight;
+    LogEnergy(altitudeAddress, weightedEnergyDeposition/keV); // Threadlocking occurs inside LogEnergy
+
+    trackedEnergy += weightedEnergyDeposition/keV;
+  }
+  if((track->GetParentID() == 0) || (trackWeight != 1)){
+    G4cout <<
+      track->GetProperTime()/ns << "," <<
+      particleName << "," << 
+      track->GetTrackID() << "," <<
+      track->GetParentID() << "," <<
+      trackWeight << "," <<
+      preStepKineticEnergy/keV << "," <<
+      step->GetTotalEnergyDeposit()/keV << "," <<
+      trackedEnergy << 
+    G4endl;
   }
 
   // ===========================
