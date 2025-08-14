@@ -46,8 +46,8 @@ void EarthDipoleField::GetFieldValue(const G4double Point[4],G4double *Bfield) c
   // Calculate field components using centered dipole model
   G4double MLAT_radians = fMLAT_degrees * fpi / 180.0;
   G4double magMoment[3] = {0, -1 * fDipoleMoment * std::cos(MLAT_radians), -1 * fDipoleMoment * std::sin(MLAT_radians)}; // Magnetic moment of Earth in world coordinates
-  G4double r_earthCenter_to_origin[3] = {0, 0, fRe + 500e3}; // Units: m
-  G4double r_origin_to_particle[3] = {Point[0]/m, Point[1]/m, Point[2]/m}; // Position vector between world origin and particle in world coordinates. Add 500 due to origin of simulation being 500 km above sea level. Units: m
+  G4double r_earthCenter_to_origin[3] = {0, 0, fRe + 500e3}; // Units: m. Add 500 due to origin of simulation being 500 km above sea level.
+  G4double r_origin_to_particle[3] = {Point[0]/m, Point[1]/m, Point[2]/m}; // Position vector between world origin and particle in world coordinates. Units: m
   G4double r[3] = {r_earthCenter_to_origin[0]+r_origin_to_particle[0], r_earthCenter_to_origin[1]+r_origin_to_particle[1], r_earthCenter_to_origin[2]+r_origin_to_particle[2]}; // Units: m
 
   // Get dot product of m and r

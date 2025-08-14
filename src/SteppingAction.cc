@@ -107,7 +107,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   
   // Kill particles that go below ground level
   if(500.0 + zPos/km < 0){ track->SetTrackStatus(fStopAndKill); }
-  
+
   // Log energy deposition
   G4int altitudeAddress = std::floor(500.0 + zPos/km); // Index to write to. Equal to altitude above sea level in km, to lowest whole km
   if(altitudeAddress > 0 && altitudeAddress < 1000) 
