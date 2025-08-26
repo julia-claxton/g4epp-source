@@ -6,6 +6,7 @@ number_of_particles = 100_000  # Number of particles to input
 
 input_particles = ["proton"]          # "e-" = electrons, "proton" = protons, "gamma" = photons
 
+
 # Create energy and pitch angle lists
 energy_kev_min = 100            # Minimum beam energy, keV
 energy_kev_max = 1_000_000           # Maximum beam energy, keV
@@ -35,6 +36,7 @@ written = 0
 for particle in input_particles
   for E in energies_to_simulate
     for α in pitch_angles_to_simulate
+      input_particle_longname = particle == "e-" ? "electron" : particle
       energy_string = @sprintf "%.1f" E
       job_name = "$(particle)_$(energy_string)keV_$(α)deg"
       qos = "preemptable"
@@ -64,8 +66,8 @@ for particle in input_particles
       ./G4EPP $(number_of_particles) $(particle) $(energy_string) $(α)
 
       # Copy results to safe folder
-      cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/backscatter_electron_input_$(energy_string)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
-      cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/energy_deposition_electron_input_$(energy_string)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
+      cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/backscatter_$(input_particle_longname)_input_$(energy_string)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
+      cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/energy_deposition_$(input_particle_longname)_input_$(energy_string)keV_$(α)deg_$(number_of_particles)particles.csv /projects/jucl6426/G4EPP/results
       """
       )
       close(file)

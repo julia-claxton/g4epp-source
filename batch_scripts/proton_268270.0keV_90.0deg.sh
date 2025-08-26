@@ -19,6 +19,6 @@ cd /projects/jucl6426/G4EPP/build/
 ./G4EPP 100000 proton 268270.0 90.0
 
 # Copy results to safe folder
-cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/backscatter_electron_input_268270.0keV_90.0deg_100000particles.csv /projects/jucl6426/G4EPP/results
-cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/energy_deposition_electron_input_268270.0keV_90.0deg_100000particles.csv /projects/jucl6426/G4EPP/results
+cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/backscatter_proton_input_268270.0keV_90.0deg_100000particles.csv /projects/jucl6426/G4EPP/results
+cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/energy_deposition_proton_input_268270.0keV_90.0deg_100000particles.csv /projects/jucl6426/G4EPP/results
 
