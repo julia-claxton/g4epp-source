@@ -14,9 +14,14 @@ n_particles = parse.(Int64, match.(Regex("deg_(.*?)particles.csv"), newest_file)
 energy = parse.(Int64, match.(Regex("_input_(.*?)keV"), newest_file).captures[1])
 pa = parse.(Int64, match.(Regex("keV_(.*?)deg_"), newest_file).captures[1])
 
+backscatter_energy = 0
 backscatter_filename = "$(results_dir)/backscatter_$(particle)_input_$(energy)keV_$(pa)deg_$(n_particles)particles.csv"
-backscatter_data = readdlm(backscatter_filename, ',', skipstart = 1)
-backscatter_energy = sum(backscatter_data[:,2])
+try
+    backscatter_data = readdlm(backscatter_filename, ',', skipstart = 1)
+catch
+else
+    global backscatter_energy = sum(backscatter_data[:,2])
+end
 
 deposition_filename = "$(results_dir)/energy_deposition_$(particle)_input_$(energy)keV_$(pa)deg_$(n_particles)particles.csv"
 deposition_data = readdlm(deposition_filename, ',', skipstart = 1)

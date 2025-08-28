@@ -58,19 +58,62 @@ SteppingAction::SteppingAction(EventAction* eventAction, RunAction* RuAct)
 SteppingAction::~SteppingAction(){delete fSteppingMessenger;}
 
 G4double trackedEnergy = 0;
+G4double eEnergy = 0;
+std::map<G4int, G4double> allWeights = {{0, 1.0}};
+
+namespace{ G4Mutex aMutex=G4MUTEX_INITIALIZER; } 
+
+
+
 void SteppingAction::UserSteppingAction(const G4Step* step)
 {
+  G4AutoLock lock(&aMutex); // Might not be necessary with thread-specific files
+
   G4Track* track = step->GetTrack();
   G4double trackWeight = track->GetWeight();
-
+  const G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
 
   trackedEnergy += step->GetTotalEnergyDeposit() * trackWeight;
-  
-  if(step->GetTrack()->GetNextVolume() == nullptr){
-    trackedEnergy += step->GetPostStepPoint()->GetKineticEnergy() * trackWeight;
+
+
+  if( particleName == "e-" ){
+    eEnergy += step->GetTotalEnergyDeposit() * trackWeight;
   }
 
-  G4cout << trackedEnergy / MeV << " MeV" << G4endl;
+
+  if( step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == "eBrem" ){
+    G4cout << "Track " << track->GetTrackID() << " produced eBrem. KE = " << step->GetPostStepPoint()->GetKineticEnergy() << G4endl;
+  }
+
+  allWeights.insert({track->GetTrackID(), track->GetWeight()});
+
+  //G4double parentWeight = allWeights.at(track->GetParentID());
+
+
+  if(trackWeight > 0.5){
+    G4cout <<
+      track->GetTrackID() << "\t" <<
+      particleName << "\t" <<
+      "Weight: " << trackWeight << "\t" <<
+      //"Parent: " << parentWeight << "\t" <<
+      track->GetParentID() << "\t" <<
+      trackedEnergy / MeV << " MeV" <<
+    G4endl;
+  }
+
+
+  
+  // ping exits
+  if(step->GetTrack()->GetNextVolume() == nullptr){
+    G4double exitEnergy = step->GetPostStepPoint()->GetKineticEnergy() * trackWeight;
+
+    if( particleName == "gamma" ){ exitEnergy = step->GetPostStepPoint()->GetTotalEnergy() * trackWeight; }
+
+    G4cout << exitEnergy/keV << " keV " << particleName << " exited world" << G4endl;
+    trackedEnergy += exitEnergy;
+  }
+
+  // G4cout << eEnergy / MeV << " MeV" << G4endl;
 }
 
 void SteppingAction::LogEnergy(G4int histogramAddress, G4double energy){}
