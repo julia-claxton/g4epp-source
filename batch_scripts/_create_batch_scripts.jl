@@ -6,7 +6,6 @@ number_of_particles = 100_000  # Number of particles to input
 
 input_particles = ["proton"]          # "e-" = electrons, "proton" = protons, "gamma" = photons
 
-
 # Create energy and pitch angle lists
 energy_kev_min = 100            # Minimum beam energy, keV
 energy_kev_max = 1_000_000           # Maximum beam energy, keV

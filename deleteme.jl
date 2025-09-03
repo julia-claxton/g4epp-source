@@ -20,6 +20,7 @@ try
     backscatter_data = readdlm(backscatter_filename, ',', skipstart = 1)
 catch
 else
+    backscatter_data = readdlm(backscatter_filename, ',', skipstart = 1)
     global backscatter_energy = sum(backscatter_data[:,2])
 end
 
