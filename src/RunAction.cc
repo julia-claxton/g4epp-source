@@ -69,6 +69,7 @@ RunAction::RunAction():
 
   // Initialize backscatter recording structures
   std::vector<std::string> fBackscatteredParticleNames;
+  std::vector<double> fBackscatteredTrackWeights;
   std::vector<double> fBackscatteredEnergieskeV;
   std::vector<double> fBackscatteredPitchAnglesDeg;
   std::vector<std::array<double,3>> fBackscatterDirections;
@@ -186,7 +187,7 @@ void RunAction::EndOfRunAction(const G4Run*)
   std::ofstream backscatterFile;
   std::string backscatterFilename = std::regex_replace(fEnergyDepositionFileName, std::regex("energy_deposition"), "backscatter");
   backscatterFile.open(backscatterFilename, std::ios_base::out); // Open file in write mode to overwrite any previous results
-  backscatterFile << "particle_name,particle_energy_keV,particle_pitch_angle_deg,momentum_direction_x,momentum_direction_y,momentum_direction_z,x_meters,y_meters,z_meters\n";
+  backscatterFile << "particle_name,particle_weight,particle_energy_keV,particle_pitch_angle_deg,momentum_direction_x,momentum_direction_y,momentum_direction_z,x_meters,y_meters,z_meters\n";
 
   int nThreads = G4Threading::GetNumberOfRunningWorkerThreads();
   for(int threadFileToMerge = 0; threadFileToMerge < nThreads; threadFileToMerge++)
@@ -215,9 +216,10 @@ void RunAction::EndOfRunAction(const G4Run*)
     if(std::filesystem::exists(backscatterThreadFilename) == false){continue;}
 
     // Read in backscatter from this thread via csv
-    io::CSVReader<9> inBackscatter(backscatterThreadFilename);
-    inBackscatter.read_header(io::ignore_extra_column, "particle_name", "particle_energy_keV", "particle_pitch_angle_deg", "momentum_direction_x", "momentum_direction_y", "momentum_direction_z", "x_meters", "y_meters", "z_meters");
+    io::CSVReader<10> inBackscatter(backscatterThreadFilename);
+    inBackscatter.read_header(io::ignore_extra_column, "particle_name", "particle_weight", "particle_energy_keV", "particle_pitch_angle_deg", "momentum_direction_x", "momentum_direction_y", "momentum_direction_z", "x_meters", "y_meters", "z_meters");
     std::string particle_name;
+    double particle_weight;
     double particle_energy_keV;
     double particle_pitch_angle_deg;
     double momentum_direction_x;
@@ -228,17 +230,18 @@ void RunAction::EndOfRunAction(const G4Run*)
     double z_meters;
 
     // For each row in the file, add energy deposition to main histogram
-    while(inBackscatter.read_row(particle_name, particle_energy_keV, particle_pitch_angle_deg, momentum_direction_x, momentum_direction_y, momentum_direction_z, x_meters, y_meters, z_meters)){ 
+    while(inBackscatter.read_row(particle_name, particle_weight, particle_energy_keV, particle_pitch_angle_deg, momentum_direction_x, momentum_direction_y, momentum_direction_z, x_meters, y_meters, z_meters)){ 
       backscatterFile << 
-        particle_name << "," <<
-        particle_energy_keV << "," <<
+        particle_name            << "," <<
+        particle_weight          << "," <<
+        particle_energy_keV      << "," <<
         particle_pitch_angle_deg << "," <<
-        momentum_direction_x << "," <<
-        momentum_direction_y << "," <<
-        momentum_direction_z << "," <<
-        x_meters << "," <<
-        y_meters << "," <<
-        z_meters << "\n"
+        momentum_direction_x     << "," <<
+        momentum_direction_y     << "," <<
+        momentum_direction_z     << "," <<
+        x_meters                 << "," <<
+        y_meters                 << "," <<
+        z_meters                 << "\n"
       ;
     }
 
@@ -280,7 +283,7 @@ void RunAction::writeBackscatterToFile(std::string filename)
 
   // Make sure we don't have missing data for any backscatter
   int n = fBackscatteredParticleNames.size();
-  if((fBackscatteredEnergieskeV.size() != n) || (fBackscatterDirections.size() != n) ||(fBackscatterPositions.size() != n) || (fBackscatteredPitchAnglesDeg.size() != n))
+  if((fBackscatteredEnergieskeV.size() != n) || ((fBackscatteredTrackWeights.size() != n)) || (fBackscatterDirections.size() != n) ||(fBackscatterPositions.size() != n) || (fBackscatteredPitchAnglesDeg.size() != n))
   {
     G4cout << "**ERROR: Incomplete backscatter data! You shouldn't see this." << G4endl;
     throw;
@@ -289,12 +292,13 @@ void RunAction::writeBackscatterToFile(std::string filename)
   // Write header
   std::ofstream dataFile;
   dataFile.open(filename, std::ios_base::out); // Open file in write mode to overwrite any previous results
-  dataFile << "particle_name,particle_energy_keV,particle_pitch_angle_deg,momentum_direction_x,momentum_direction_y,momentum_direction_z,x_meters,y_meters,z_meters\n";
+  dataFile << "particle_name,particle_weight,particle_energy_keV,particle_pitch_angle_deg,momentum_direction_x,momentum_direction_y,momentum_direction_z,x_meters,y_meters,z_meters\n";
   for(int i = 0; i < n; i++)
   {
     dataFile << 
-      fBackscatteredParticleNames.at(i) << "," <<
-      fBackscatteredEnergieskeV.at(i) << "," <<
+      fBackscatteredParticleNames.at(i)  << "," <<
+      fBackscatteredTrackWeights.at(i)   << "," <<
+      fBackscatteredEnergieskeV.at(i)    << "," <<
       fBackscatteredPitchAnglesDeg.at(i) << "," <<
 
       fBackscatterDirections.at(i)[0] << "," <<
