@@ -46,6 +46,10 @@ for E in energies_to_simulate
       time_limit = "7-00:00:00"
     end
 
+    if E > 500
+      continue
+    end
+
     file = open("$(@__DIR__)/$(job_name).sh", "w")
     println(file,
     """
