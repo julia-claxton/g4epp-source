@@ -67,9 +67,9 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   // ===========================
   G4Track* track = step->GetTrack();
   const G4String particleName = track->GetDynamicParticle()->GetDefinition()->GetParticleName();
-  G4double preStepKineticEnergy = step->GetPreStepPoint()->GetKineticEnergy();
-  G4double postStepKineticEnergy = step->GetPostStepPoint()->GetKineticEnergy();
-  G4double trackWeight = track->GetWeight();
+  const G4double preStepKineticEnergy = step->GetPreStepPoint()->GetKineticEnergy();
+  const G4double postStepKineticEnergy = step->GetPostStepPoint()->GetKineticEnergy();
+  const G4double trackWeight = track->GetWeight();
 
   // Check for NaN energy
   if(std::isnan(postStepKineticEnergy))
