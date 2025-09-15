@@ -19,6 +19,6 @@ cd /projects/jucl6426/G4EPP/build/
 ./G4EPP 100000 e- 161.0 20.0
 
 # Copy results to safe folder
-cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/backscatter_electron_input_161.0keV_20.0deg_100000particles.csv /projects/jucl6426/G4EPP/results
-cp /projects/jucl6426/G4EPP/build/results/input_449.5km_record_450.5km/energy_deposition_electron_input_161.0keV_20.0deg_100000particles.csv /projects/jucl6426/G4EPP/results
+cp /projects/jucl6426/G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/backscatter_electron_input_161.0keV_20.0deg_100000particles.csv /projects/jucl6426/G4EPP/results
+cp /projects/jucl6426/G4EPP/build/results/mlat_65.77deg_input_449.5km_record_450.5km/energy_deposition_electron_input_161.0keV_20.0deg_100000particles.csv /projects/jucl6426/G4EPP/results
 
