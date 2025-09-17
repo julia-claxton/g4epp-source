@@ -55,6 +55,7 @@
     /beamParameters/setParticleStartingAltitude {STARTING_ALTITUDE_KM}
     /dataCollection/setCollectionAltitude {RECORDING_ALTITUDE_KM}
 
+    /beamParameters/setBeamParticle {BEAM_PARTICLE}
     /beamParameters/setBeamEnergy {BEAM_ENERGY_KEV}
     /beamParameters/setBeamPitchAngle {BEAM_PITCH_ANGLE_DEG}
     /fieldParameters/setMLAT {MLAT_DEGREES}
