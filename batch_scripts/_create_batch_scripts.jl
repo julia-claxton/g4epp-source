@@ -1,6 +1,7 @@
 using Statistics, LinearAlgebra
 using Glob
 using Printf
+include("/Users/luna/Research/G4EPP_2.0/G4EPP.jl")
 
 number_of_particles = 100_000  # Number of particles to input
 
@@ -24,6 +25,8 @@ pitch_angles_to_simulate = LinRange(pitch_angle_deg_min, pitch_angle_deg_max, pi
 energies_to_simulate = round.(energies_to_simulate, digits = 1)
 pitch_angles_to_simulate = round.(pitch_angles_to_simulate, digits = 1)
 
+# Find beams we already data for
+prev_particle_type, prev_energy, prev_pitch_angle = get_beams("/Users/luna/Research/geant4/G4EPP/_Full_Grid")
 
 # Create shell scripts
 rm.(glob("*deg.sh", @__DIR__))
@@ -35,15 +38,14 @@ for E in energies_to_simulate
     input_particle_longname = particle == "e-" ? "electron" : particle
     energy_string = @sprintf "%.1f" E
     job_name = "$(input_particle_longname)_$(energy_string)keV_$(α)deg"
-    qos = "preemptable"
-    time_limit = "1-00:00:00"
-
+    #qos = "preemptable"
+    #time_limit = "1-00:00:00"
+    qos = "blanca-lair"
+    time_limit = "7-00:00:00"
+    
     # Don't simulate if we already have data for a given beam
-    # TODO
-
-    if (65 ≤ α ≤ 72) && (E < 200)
-      qos = "blanca-lair"
-      time_limit = "7-00:00:00"
+    if sum( (input_particle_longname .== prev_particle_type) .&& (E .== prev_energy) .&& (α .== prev_pitch_angle) ) == 1
+      continue
     end
 
     if E > 500
